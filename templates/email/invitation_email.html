@@ -1,0 +1,34 @@
+<!-- templates/email/invitation_email.html -->
+
+<!DOCTYPE html>
+<html>
+    <!-- Head -->
+    <head>
+        <meta charset="UTF-8">
+        <title>Invitation: {{ event.title }}</title>
+
+        <!-- CSS -->
+        <style>
+            .button {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #28a745;
+                color: #ffffff !important;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+        </style> 
+    </head>
+
+    <!-- Body: Mail message -->
+    <body>
+        <p>Dear {{ user.username }},</p>
+        <p>You are invited to attend the event <strong>{{ event.title }}</strong> scheduled on <strong>{{ event.date }}</strong> at <strong>{{ event.time }}</strong> in <strong>{{ event.location }}</strong>.</p>
+        <p>Attending this event will award you <strong>{{ attendance_points }}</strong> points.</p>
+        <p>{{ ranking_message }}</p>
+        <p>
+            <a href="{{ attend_url }}" class="button">Attend Event</a>
+        </p>
+        <p>Best regards,<br>Your Event Team</p>
+    </body>
+</html>
