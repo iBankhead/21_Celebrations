@@ -1,0 +1,295 @@
+<!-- Main navbar with app name and links -->
+
+<nav class="navbar navbar-expand-lg mb-2" style="background-color: var(--deep-navy);">
+    <div class="container">
+        <!-- Brand text removed -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <!-- Dashboard remains unchanged -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'index' %}">Dashboard</a>
+                </li>
+
+                <!-- Leaderboard navigation entry -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'leaderboard' %}">Leaderboard</a>
+                </li>
+
+                <!-- Calendar navigation entry -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'calendar_view' %}">Calendar</a>
+                </li>
+
+                <!-- Events Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="eventsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Events
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="eventsDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'event_list' %}">Upcoming Events</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'event_planned' %}">Events in Planning</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'event_final' %}">Past Events</a>
+                        </li>
+                        <hr>
+                        <li>
+                            <!-- Link that triggers Add Event modal -->
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addEventModal">Add Event</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Gifts Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="giftsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Gifts
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="giftsDropdown">
+                        <!-- Gift Contributions -->
+                        <li>
+                            <a class="dropdown-item" href="{% url 'gift_contribution_list' %}">Open Contributions</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'gift_list' %}">Open Searches</a>
+                        </li>
+                        <hr>
+
+                        <!-- Gift Searches -->
+                        <li>
+                            <a class="dropdown-item" href="{% url 'closed_contribution_list' %}">Closed Contributions</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'closed_gift_list' %}">Closed Searches</a>
+                        </li>
+                        <hr>
+
+                        <!-- Gift Create -->
+                        <li>
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createGiftContributionModal">Start Contribution</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createGiftSearchModal">Start Search</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Settings Dropdown Menu -->
+                {% if user.is_staff %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Settings
+                        </a>
+
+                        <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
+                            <!-- Setting Views -->
+                            <li>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#roleConfigModal">Role Configuration</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'task_template_list' %}">Task Templates</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#jobSettingsModal">Job Settings</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#generalSettingsModal">General Settings</a>
+                            </li>
+                            <hr>
+
+                            <!-- Management Views -->
+                            <li class="nav-item">
+                                <a class="dropdown-item" href="{% url 'user_management' %}">User Management</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="dropdown-item" href="{% url 'event_management' %}">Event Management</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="dropdown-item" href="{% url 'gift_contribution_management' %}">Gift Contribution Management</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="dropdown-item" href="{% url 'gift_search_management' %}">Gift Search Management</a>
+                            </li>
+                        </ul>
+                    </li>
+                {% endif %}
+
+                <!-- User Menu -->
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{% url 'personal_data' %}">Personal Data</a></li>
+                            <li><a class="dropdown-item" href="{% url 'account_change_password' %}">Change Password</a></li>
+                            <li><a class="dropdown-item" href="{% url 'account_email' %}">Manage Email</a></li>
+                            <li><a class="dropdown-item" href="{% url 'account_delete' %}">Delete Account</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'account_login' %}">Login</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Modal for adding event using create_event.html -->
+<div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="addEventModalLabel">Add Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body: load content via iframe -->
+            <div class="modal-body" style="padding: 0;">
+                <iframe src="{% url 'create_event' %}" style="width: 100%; height: 700px; border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Create Gift Search" -->
+<div class="modal fade" id="createGiftSearchModal" tabindex="-1" aria-labelledby="createGiftSearchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="createGiftSearchModalLabel">Start Gift Search</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body: load content via iframe -->
+            <div class="modal-body" style="padding: 0;">
+                <iframe src="{% url 'create_gift_search' %}" style="width: 100%; height: 550px; border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Create Gift Contribution -->
+<div class="modal fade" id="createGiftContributionModal" tabindex="-1" aria-labelledby="createGiftContributionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="createGiftContributionModalLabel">Start Gift Contribution</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body: load content via iframe -->
+            <div class="modal-body" style="padding: 0;">
+                <iframe src="{% url 'create_gift_contribution' %}" style="width: 100%; height: 750px; border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for role configuration -->
+<div class="modal fade" id="roleConfigModal" tabindex="-1" aria-labelledby="roleConfigModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleConfigModalLabel">Role Configuration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body: load content via iframe -->
+            <div class="modal-body" style="padding: 0;">
+                <iframe src="{% url 'role_configuration' %}" style="width: 100%; height: 650px; border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for job settings -->
+<div class="modal fade" id="jobSettingsModal" tabindex="-1" aria-labelledby="jobSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="jobSettingsModalLabel">Job Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body: load content via iframe -->
+            <div class="modal-body" style="padding: 0;">
+                <iframe src="{% url 'job_settings' %}" style="width: 100%; height: 600px; border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for general settings -->
+<div class="modal fade" id="generalSettingsModal" tabindex="-1" aria-labelledby="generalSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="generalSettingsModalLabel">General Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- Modal Body: load content via iframe -->
+            <div class="modal-body" style="padding: 0;">
+                <iframe src="{% url 'general_settings' %}" style="width: 100%; height: 600px; border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script to close role settings modal -->
+<script>
+    function closeRoleConfigurationModal() {
+    var modalEl = document.getElementById("roleConfigModal");
+    var modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+    }
+    modalInstance.hide();
+    }
+</script>
+
+<!-- Script to close job settings modal -->
+<script>
+    function closeJobSettingsModal() {
+    var modalEl = document.getElementById("jobSettingsModal");
+    var modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+    }
+    modalInstance.hide();
+    }
+</script>
+
+<!-- Script to close general settings modal -->
+<script>
+    function closeGeneralSettingsModal() {
+    var modalEl = document.getElementById("generalSettingsModal");
+    var modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+    }
+    modalInstance.hide();
+    }
+</script>
+  

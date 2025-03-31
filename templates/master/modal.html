@@ -1,0 +1,294 @@
+<!-- Global styles, header, footer -->
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <!-- Essential for responsiveness on mobile devices -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}21 Celebrations{% endblock %}</title>
+        
+        <!-- Bootstrap 5 -->
+        <link 
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+            rel="stylesheet"
+        >
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+        
+        <!-- Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400&display=swap" rel="stylesheet">
+        
+        <!-- Custom Styles -->
+        <style>
+            :root {
+                --deep-navy: #1C2730;
+                --gold: #D4AF37;
+                --creme-white: #F5F2EB;
+                --silver-blue: #43525B;
+                --highlight-star: #FEE17F;
+            }
+            .golden-text {
+                color: var(--gold);
+            }
+            body {
+                background-color: var(--deep-navy);
+                color: var(--creme-white);
+                font-family: 'Lato', sans-serif;
+            }
+            a, a:hover, a:focus, a:active {
+                text-decoration: none;
+                color: var(--gold);
+            }
+            .navbar {
+                background-color: var(--deep-navy);
+                border-bottom: 1px solid var(--gold);
+            }
+            .navbar-brand,
+            .navbar-text,
+            .nav-link {
+                color: var(--gold) !important;
+            }
+            .btn-primary {
+                background-color: var(--gold);
+                border-color: var(--gold);
+                color: var(--deep-navy);
+            }
+            .btn-primary:hover {
+                background-color: var(--highlight-star);
+                border-color: var(--highlight-star);
+                color: var(--deep-navy);
+            }
+            footer {
+                background-color: var(--deep-navy);
+                color: var(--gold);
+                padding: 1rem 0;
+                border-top: 1px solid var(--gold);
+                text-align: center;
+            }
+            .modal label {
+                color: var(--deep-navy) !important;
+            }
+
+            .modal-content,
+            .modal-content * {
+                color: var(--deep-navy) !important;
+            }
+
+            .small-integer-input {
+                width: 70px;
+            }
+
+            /* Leaderboard Container */
+            .leaderboard-container {
+                background-color: var(--creme-white);
+                color: var(--deep-navy);
+                padding: 1rem;
+                border-radius: 5px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 1rem;
+            }
+
+            /* Leaderboard Title */
+            .leaderboard-container h2 {
+                font-family: 'Cinzel', serif;
+                font-size: 1.8rem;
+                color: var(--gold);
+                margin-bottom: 1rem;
+            }
+
+            /* List Group Item */
+            .list-group-item {
+                background-color: var(--creme-white);
+                color: var(--deep-navy);
+                border: none;
+                border-bottom: 1px solid var(--silver-blue);
+                padding: 0.6rem 1rem;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+
+            .list-group-item:last-child {
+                border-bottom: none;
+            }
+
+            /* Rank Number */
+            .leaderboard-rank {
+                font-weight: bold;
+                margin-right: 0.4rem;
+                font-size: 1.2em; 
+            }
+
+            /* Special styling for top 3 ranks */
+            .leaderboard-rank.first {
+                font-size: 1.3em;
+                color: var(--gold);
+            }
+            .leaderboard-rank.second {
+                font-size: 1.25em;
+                color: var(--silver-blue);
+                }
+            .leaderboard-rank.third {
+                font-size: 1.2em;
+            }
+
+            /* Total Points */
+            .points {
+                font-size: 1.2em;
+                font-weight: normal;
+                margin-right: 0.5rem;
+            }
+
+            /* Past Rank */
+            .past-rank {
+                font-size: 0.9em;
+                color: #555;
+                margin-left: 0.5rem;
+            }
+
+            /* Arrow Indicators */
+            .arrow-up, .arrow-down, .arrow-right {
+                font-size: 1em;
+                vertical-align: middle;
+                margin-left: 0.2rem;
+            }
+
+            /* Total Arrow - larger than sub-score arrows */
+            .total-arrow {
+                font-size: 1.7em !important;
+                vertical-align: middle;
+                margin-left: 0.3rem;
+                font-weight: bold;
+            }
+
+            .arrow-up {
+                color: green;
+            }
+            .arrow-down {
+                color: red;
+            }
+            .arrow-right {
+                color: gray;
+            }
+
+            /* Sub-scores (smaller text for roles, tasks, gifts) */
+            .sub-scores {
+                font-size: 0.9em;
+                margin-left: 3rem;
+            }
+
+            /* Responsive adjustments */
+            @media (max-width: 768px) {
+                .leaderboard-container h2 {
+                    font-size: 1.5rem;
+                }
+                .username-badge {
+                    font-size: 1em;
+                    padding: 0.3em 0.5em;
+                }
+                .points {
+                    font-size: 1em;
+                }
+                .arrow-up, .arrow-down, .arrow-right {
+                    font-size: 0.9em;
+                }
+                .past-rank, .sub-scores {
+                    font-size: 0.8em;
+                }
+                .total-arrow {
+                    font-size: 2em;
+                }
+            }
+
+            /* Base Username Badge */
+            .username-badge {
+                display: inline-block;
+                font-size: 1.2em;
+                padding: 0.3em 0.6em;
+                margin-right: 0.5rem;
+                background-color: var(--gold);
+                color: var(--deep-navy);
+                border-radius: 0.4rem;
+                font-weight: bold;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+                }
+
+            /* First Rank - Gold */
+            .username-badge.first {
+                background-color: var(--gold);
+                color: var(--deep-navy);
+            }
+
+            /* Second Rank - Silver */
+            .username-badge.second {
+                background-color: #C0C0C0; 
+                color: var(--deep-navy);
+            }
+
+            /* Third Rank - Bronze */
+            .username-badge.third {
+                background-color: #cd7f32; 
+                color: var(--deep-navy);
+            }
+
+            /* All other Ranks - without Badge */
+            .username-text {
+                display: inline-block;
+                font-size: 1.2em;
+                margin-right: 0.5rem;
+                color: var(--deep-navy);
+            }
+
+            @keyframes rankChangeHighlight {
+                0% {
+                    transform: scale(1);
+                    background-color: transparent;
+                }
+                50% {
+                    transform: scale(1.1);
+                    background-color: rgba(255, 215, 0, 0.3); 
+                }
+                100% {
+                    transform: scale(1);
+                    background-color: transparent;
+                }
+            }
+
+            .animate-change {
+            animation: rankChangeHighlight 1s ease-out;
+            }
+        </style>
+
+        {% block extra_css %}
+        {% endblock %}
+    </head>
+
+    <body>
+        {% if messages %}
+            <div class="container mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="container my-4">
+            {% block content %}{% endblock %}
+        </div>
+        
+        {% include "master/footer.html" %}
+        
+        <!-- Bootstrap 5 -->
+        <script 
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+        </script>
+
+        {% block extra_js %}
+        {% endblock %}
+    </body>
+</html>

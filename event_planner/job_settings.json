@@ -1,0 +1,117 @@
+{
+    "check_overdue_tasks": {
+        "enabled": false,
+        "interval": 5,
+        "min": 1,
+        "max": 60,
+        "description": "Checks overdue tasks every X minutes and updates their status."
+    },
+    "send_reminder_email": {
+        "enabled": false,
+        "interval": 1,
+        "min": 1,
+        "max": 24,
+        "lead_time": 48,
+        "description": "Sends reminder emails. The job checks every X hours; reminders are sent if tasks are due in lead time (hours) with a window duration (minutes)."
+    },
+    "send_invitation_email": {
+        "enabled": false,
+        "interval": 1,
+        "min": 1,
+        "max": 24,
+        "description": "Sends invitation emails. The job checks every X hours; invitation is sent if event is upcoming and has date, time, and location set."
+    },
+    "send_gift_search_invitation": {
+        "enabled": false,
+        "interval": 3,
+        "min": 1,
+        "max": 24,
+        "description": "Sends invitation emails. The job checks every X hours; invitation is sent if gift search is created and deadline is in the future."
+    },
+    "gift_search_reminder": {
+        "enabled": false,
+        "interval": 1,
+        "min": 1,
+        "max": 24,
+        "lead_time": 48,
+        "description": "Sends reminder emails. The job checks every X hours; reminders are sent if gift search ends in lead time (hours) with a window duration (minutes)."
+    },
+    "gift_search_results": {
+        "enabled": false,
+        "interval": 3,
+        "min": 1,
+        "max": 24,
+        "description": "Sends gift search result emails. The job checks every X hours; result is sent if gift search passed the deadline and users voted for proposals."
+    },
+    "send_gift_contribution_invitation": {
+        "enabled": false,
+        "interval": 3,
+        "min": 1,
+        "max": 24,
+        "description": "Sends invitation emails. The job checks every X hours; invitation is sent if gift contribution is created and deadline is in the future."
+    },
+    "gift_contribution_reminder": {
+        "enabled": false,
+        "interval": 1,
+        "min": 1,
+        "max": 24,
+        "lead_time": 48,
+        "description": "Sends reminder emails. The job checks every X hours; reminders are sent if gift contribution ends in lead time (hours) with a window duration (minutes)."
+    },
+    "store_user_scores": {
+        "enabled": false,
+        "interval": 12,
+        "min": 1,
+        "max": 24,
+        "description": "Stores user scores daily every X hours and updates historical data.",
+        "rank_change_interval": 30,
+        "description2": "Defines the comparison period for rank changes in the leaderboard."
+    },
+    "create_birthday_event": {
+        "enabled": false,
+        "interval": 3,
+        "min": 1,
+        "max": 96,
+        "min_users_required": 3,
+        "max_users_allowed": 10,
+        "future_search_offset": 30,
+        "description": "Checks birthdays X days from now and creates an event when minimum number of honorees - not exceeding maximum number - is reached."
+    },
+    "create_round_birthday_gift_search": {
+        "enabled": false,
+        "interval": 24,
+        "min": 1,
+        "max": 96,
+        "future_search_offset": 30,
+        "deadline": 7,
+        "description": "Checks round birthdays X days from now and creates a gift search which ends X days before the birthday. Sebds invitation email."
+    },
+    "check_payment_reminder": {
+        "enabled": false,
+        "interval": 1,
+        "min": 1,
+        "max": 10,
+        "overdue_threshold": 5,
+        "description": "Sends reminder emails. The job checks every X days; reminders are sent X days after payment was billed repeatedly according to interval."
+    },
+    "update_event_status": {
+        "enabled": false,
+        "interval": 24,
+        "min": 1,
+        "max": 96,
+        "description": "Checks the status of an event. The job checks every X hours; if time and place are fixed, event is past or all transactions paid, the status is changed."
+    },
+    "update_contribution_status": {
+        "enabled": false,
+        "interval": 24,
+        "min": 1,
+        "max": 96,
+        "description": "Checks the status of a gift contribution. The job checks every X hours; if status is \"open\" after deadline, the status is changed to \"closed\"."
+    },
+    "general": {
+        "conversion_rate": 0.5,
+        "description": "Conversion rate for payments in points (input as decimal number)",
+        "payment_penalty": -25,
+        "description2": "Penalty for late payment in points (input as negative number)"
+    }
+}
