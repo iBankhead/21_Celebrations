@@ -1,0 +1,46 @@
+<!-- templates/event_planner/event_planned.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+
+
+{% block title %}My Event List{% endblock %}
+
+{% block content %}
+    <div>
+        <h2>Events in Planning</h2>
+        {% if events %}
+            <div class="row">
+                {% for event in events %}
+                    <!-- Card for planned events (no date, time, lpcation / status 'planned') -->
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <!-- Wrap card body with edit link -->
+                            <a href="{% url 'edit_event_detail' event.id %}" class="card-link">
+                                <div class="card-body">
+                                    <!-- Event details -->
+                                    <h4 class="card-title" style="color: var(--gold);">{{ event.title }}</h4>
+                                    <p class="card-text"><small class="text-muted">Created at {{ event.created_at }}</small></p>
+                                    <p class="card-text"><small class="text-muted">Event type: {{ event.event_type }}</small></p>
+                                    <p class="card-text"><small class="text-muted">Event status: {{ event.status }}</small></p>
+                                </div>
+                            </a>
+
+                            {% if event.can_delete %}
+                                <!-- only managers can edit -->
+                                <div class="card-footer">
+                                    <form method="post" action="{% url 'delete_event' event.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No events available at this time.</p>
+        {% endif %}
+    </div>
+{% endblock %}

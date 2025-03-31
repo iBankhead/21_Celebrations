@@ -1,0 +1,68 @@
+<!-- templates/event_planner/event_list.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+
+
+{% block title %}My Events{% endblock %}
+
+<!-- CSS -->
+{% block extra_css %}
+    <style>
+        /* Reduce spacing between event cards and text */
+        .card {
+            margin-bottom: 1rem; 
+            background-color: var(--creme-white);
+        }
+        .card-title {
+            margin-bottom: 0.5rem; 
+        }
+        .card-text {
+            margin-bottom: 0.5rem; 
+        }
+        h2 {
+            margin-bottom: 1rem; 
+        }
+        /* Remove default link styles while preserving the card appearance */
+        a.card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div>
+        <h2>Upcoming Events</h2>
+        {% if events %}
+            <div class="row">
+                {% for event in events %}
+                    <!-- Card for upcoming events (date not reached / status 'active') -->
+                    <div class="col-md-4">
+                        {% if event.can_edit %}
+                            <!-- only managers can edit -->
+                            <a href="{% url 'edit_event_detail' event.id %}" class="card-link">
+                        {% endif %}
+
+                        <!-- Event details -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h4 class="card-title" style="color: var(--gold);">{{ event.title }}</h4>
+                                <p class="card-text" style="color: var(--deep-navy);">{{ event.description|truncatewords:20 }}</p>
+                                <p class="card-text"><small class="text-muted">Date: {{ event.date }} at {{ event.time }}</small></p>
+                                <p class="card-text"><small class="text-muted">Location: {{ event.location }}</small></p>
+                            </div>
+                        </div>
+
+                        {% if event.can_edit %}
+                            <!-- only managers can edit -->
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No events available at the moment.</p>
+        {% endif %}
+    </div>
+{% endblock %}

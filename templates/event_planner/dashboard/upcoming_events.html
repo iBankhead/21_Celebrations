@@ -1,0 +1,61 @@
+<!-- templates/event_planner/dashboard/upcoming_events.html -->
+
+
+<div class="dashboard-section upcoming_events" id="upcoming-events" style="min-height: 250px;">
+    <h5 class="mb-2">Upcoming Events</h5>
+
+    <div class="card">
+        <div class="card-body">
+            {% if upcoming_events %}
+                <ul class="list-group">
+                    <!-- List all future events (except events in planning) -->
+                    {% for event in upcoming_events %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <!-- Event details -->
+                            <div>
+                                <h5 class="mb-1" style="color: var(--gold);">
+                                    {{ event.title }}
+                                </h5>
+                                <p class="mb-1 text-muted">
+                                    <strong>Date:</strong> {{ event.date|date:"M d, Y" }}<br>
+                                    <strong>Time:</strong> {{ event.time|time:"H:i" }}<br>
+                                    <strong>Location:</strong> {{ event.location }}
+                                </p>
+                                <p class="mb-1">
+                                    <strong>Attendees:</strong> {{ event.attendees.count }} &nbsp;&nbsp;
+                                    <strong>Points for Attending:</strong> {{ attendee_points }}
+                                </p>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div>
+                                {% if not event.is_attending %}
+                                    <!-- Button 'Attend' if user has not confirmed yet -->
+                                    <form method="post" action="{% url 'attend_event' event.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary btn-sm">Attend</button>
+                                    </form>
+                                    <p class="golden-text">
+                                        You are not yet registered!
+                                    </p>                                
+                                {% else %}
+                                    <!-- Button 'Decline' if user wants to withdraw from event -->
+                                    <form method="post" action="{% url 'decline_event' event.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+                                    </form>
+                                    <p class="golden-text">
+                                        You attend!
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No upcoming events.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+

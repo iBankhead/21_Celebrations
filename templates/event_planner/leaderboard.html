@@ -1,0 +1,686 @@
+{% extends "master/base.html" %}
+{% block title %}Leaderboards{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Leaderboards</h2>
+        <div class="row">
+            <!-- Left Column: Main content with nested sub-tabs for each category -->
+            <div class="col-md-9">
+                <div class="tab-content" id="leaderboardTabsContent">
+                    <!-- Total Category -->
+                    <div class="tab-pane fade show active" id="total" role="tabpanel" aria-labelledby="v-total-tab">
+                        <!-- Nested sub-tabs for Total -->
+                        <ul class="nav nav-tabs mb-2" id="totalSubTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="total-leaderboard-tab" data-bs-toggle="tab" data-bs-target="#total-leaderboard" type="button" role="tab" aria-controls="total-leaderboard" aria-selected="true">Leaderboard</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="total-historic-tab" data-bs-toggle="tab" data-bs-target="#total-historic" type="button" role="tab" aria-controls="total-historic" aria-selected="false">Historic</button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="totalSubTabsContent">
+                            <!-- Total Leaderboard -->
+                            <div class="tab-pane fade show active" id="total-leaderboard" role="tabpanel" aria-labelledby="total-leaderboard-tab">
+                                <div class="leaderboard-container mt-3">
+                                    <ul class="list-group">
+                                        {% for entry in leaderboard_total %}
+                                            <li class="list-group-item {% if entry.rank_change != 0 %}animate-change{% endif %}">
+                                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                                    <div class="d-flex flex-wrap align-items-center">
+                                                        <!-- Ranking info -->
+                                                        <span class="leaderboard-rank {% if entry.current_rank == 1 %}first{% elif entry.current_rank == 2 %}second{% elif entry.current_rank == 3 %}third{% endif %}">
+                                                            {{ entry.current_rank }}.
+                                                        </span>
+                                                        {% if entry.current_rank <= 3 %}
+                                                            <span class="username-badge {% if entry.current_rank == 1 %}first{% elif entry.current_rank == 2 %}second{% elif entry.current_rank == 3 %}third{% endif %}">
+                                                                {{ entry.user.user.username }}
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="username-text">
+                                                                {{ entry.user.user.username }}
+                                                            </span>
+                                                        {% endif %}
+                                                        <span class="points">
+                                                            &nbsp;&nbsp;{{ entry.user.total_score }} pts
+                                                        </span>
+                                                        <span class="past-rank ms-2">
+                                                            (Past: {{ entry.previous_rank }})
+                                                            {% if entry.rank_change > 0 %}
+                                                                <span class="total-arrow arrow-up">&#x2191;</span>
+                                                            {% elif entry.rank_change < 0 %}
+                                                                <span class="total-arrow arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="total-arrow arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- Other scores in the same row -->
+                                                    <div class="d-flex flex-wrap align-items-center">
+                                                        <small class="sub-scores ms-3">
+                                                            <!-- Role score -->
+                                                            Roles: {{ entry.user.role_score }} 
+                                                            {% if entry.user.role_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.role_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Task score -->
+                                                            &nbsp;&nbsp;Tasks: {{ entry.user.task_score }} 
+                                                            {% if entry.user.task_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.task_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Gift score -->
+                                                            &nbsp;&nbsp;Gifts: {{ entry.user.gift_score }} 
+                                                            {% if entry.user.gift_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.gift_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Payment score -->
+                                                            &nbsp;&nbsp;Payments: {{ entry.user.payment_score }} 
+                                                            {% if entry.user.payment_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.payment_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% empty %}
+                                            <li class="list-group-item">No active users available.</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Total Historic Chart Tab -->
+                            <div class="tab-pane fade" id="total-historic" role="tabpanel" aria-labelledby="total-historic-tab">
+                                <div class="leaderboard-container mt-3">
+                                    <canvas id="historicTotalChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Roles Category -->
+                    <div class="tab-pane fade" id="roles" role="tabpanel" aria-labelledby="v-roles-tab">
+                        <!-- Nested sub-tabs for Role -->
+                        <ul class="nav nav-tabs mb-2" id="rolesSubTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="roles-leaderboard-tab" data-bs-toggle="tab" data-bs-target="#roles-leaderboard" type="button" role="tab" aria-controls="roles-leaderboard" aria-selected="true">Leaderboard</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="roles-historic-tab" data-bs-toggle="tab" data-bs-target="#roles-historic" type="button" role="tab" aria-controls="roles-historic" aria-selected="false">Historic</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="rolesSubTabsContent">
+                            <!-- Roles Leaderboard -->
+                            <div class="tab-pane fade show active" id="roles-leaderboard" role="tabpanel" aria-labelledby="roles-leaderboard-tab">
+                                <div class="leaderboard-container mt-3">
+                                    <ul class="list-group">
+                                        {% for entry in leaderboard_roles %}
+                                            <li class="list-group-item {% if entry.rank_change != 0 %}animate-change{% endif %}">
+                                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                                    <div class="d-flex flex-wrap align-items-center">
+                                                        <!-- Ranking info -->
+                                                        <span class="leaderboard-rank {% if entry.current_rank == 1 %}first{% elif entry.current_rank == 2 %}second{% elif entry.current_rank == 3 %}third{% endif %}">
+                                                            {{ entry.current_rank }}.
+                                                        </span>
+                                                        {% if entry.current_rank <= 3 %}
+                                                            <span class="username-badge {% if entry.current_rank == 1 %}first{% elif entry.current_rank == 2 %}second{% elif entry.current_rank == 3 %}third{% endif %}">
+                                                        {{ entry.user.user.username }}
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="username-text">
+                                                            {{ entry.user.user.username }}
+                                                            </span>
+                                                        {% endif %}
+                                                        <span class="points">
+                                                            &nbsp;&nbsp;{{ entry.user.role_score }} pts
+                                                        </span>
+                                                        <span class="past-rank ms-2">
+                                                            (Past: {{ entry.previous_rank }})
+                                                            {% if entry.rank_change > 0 %}
+                                                                <span class="total-arrow arrow-up">&#x2191;</span>
+                                                            {% elif entry.rank_change < 0 %}
+                                                                <span class="total-arrow arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="total-arrow arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                        </span>
+                                                        <span class="total-score text-muted ms-2">
+                                                            (Total: {{ entry.user.total_score }} pts)
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <!-- Other scores in the same row -->
+                                                    <div class="d-flex flex-wrap align-items-center">
+                                                        <small class="sub-scores ms-3">
+                                                            <!-- Total score -->
+                                                            Total: {{ entry.user.total_score }} pts 
+                                                            {% if entry.user.total_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.total_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Task score -->
+                                                            &nbsp;&nbsp;Tasks: {{ entry.user.task_score }} pts 
+                                                            {% if entry.user.task_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.task_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Gift score -->
+                                                            &nbsp;&nbsp;Gifts: {{ entry.user.gift_score }} pts 
+                                                            {% if entry.user.gift_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.gift_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Payment score -->
+                                                            &nbsp;&nbsp;Payments: {{ entry.user.payment_score }} 
+                                                            {% if entry.user.payment_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.payment_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% empty %}
+                                            <li class="list-group-item">No active users available.</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Roles Historic Chart Tab -->
+                            <div class="tab-pane fade" id="roles-historic" role="tabpanel" aria-labelledby="roles-historic-tab">
+                                <div class="leaderboard-container mt-3">
+                                    <canvas id="historicRoleChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tasks Category -->
+                    <div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="v-tasks-tab">
+                        <!-- Nested sub-tabs for Tasks -->
+                        <ul class="nav nav-tabs mb-2" id="tasksSubTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="tasks-leaderboard-tab" data-bs-toggle="tab" data-bs-target="#tasks-leaderboard" type="button" role="tab" aria-controls="tasks-leaderboard" aria-selected="true">Leaderboard</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="tasks-historic-tab" data-bs-toggle="tab" data-bs-target="#tasks-historic" type="button" role="tab" aria-controls="tasks-historic" aria-selected="false">Historic</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="tasksSubTabsContent">
+                            <!-- Tasks Leaderboard -->
+                            <div class="tab-pane fade show active" id="tasks-leaderboard" role="tabpanel" aria-labelledby="tasks-leaderboard-tab">
+                                <div class="leaderboard-container mt-3">
+                                    <ul class="list-group">
+                                        {% for entry in leaderboard_tasks %}
+                                            <li class="list-group-item {% if entry.rank_change != 0 %}animate-change{% endif %}">
+                                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                                    <div class="d-flex flex-wrap align-items-center">
+                                                        <!-- Ranking info -->
+                                                        <span class="leaderboard-rank {% if entry.current_rank == 1 %}first{% elif entry.current_rank == 2 %}second{% elif entry.current_rank == 3 %}third{% endif %}">
+                                                            {{ entry.current_rank }}.
+                                                        </span>
+                                                        {% if entry.current_rank <= 3 %}
+                                                            <span class="username-badge {% if entry.current_rank == 1 %}first{% elif entry.current_rank == 2 %}second{% elif entry.current_rank == 3 %}third{% endif %}">
+                                                                {{ entry.user.user.username }}
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="username-text">
+                                                                {{ entry.user.user.username }}
+                                                            </span>
+                                                        {% endif %}
+                                                        <span class="points">
+                                                            &nbsp;&nbsp;{{ entry.user.task_score }} pts
+                                                        </span>
+                                                        <span class="past-rank ms-2">
+                                                            (Past: {{ entry.previous_rank }})
+                                                            {% if entry.rank_change > 0 %}
+                                                                <span class="total-arrow arrow-up">&#x2191;</span>
+                                                            {% elif entry.rank_change < 0 %}
+                                                                <span class="total-arrow arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="total-arrow arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                        </span>
+                                                        <span class="total-score text-muted ms-2">
+                                                            (Total: {{ entry.user.total_score }} pts)
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- Other scores in the same row -->
+                                                    <div class="d-flex flex-wrap align-items-center">
+                                                        <small class="sub-scores ms-3">
+                                                            <!-- Total score -->
+                                                            Total: {{ entry.user.total_score }} pts 
+                                                            {% if entry.user.total_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.total_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Role score -->
+                                                            &nbsp;&nbsp;Roles: {{ entry.user.role_score }} pts 
+                                                            {% if entry.user.role_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.role_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Gift score -->
+                                                            &nbsp;&nbsp;Gifts: {{ entry.user.gift_score }} pts 
+                                                            {% if entry.user.gift_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.gift_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Payment score -->
+                                                            &nbsp;&nbsp;Payments: {{ entry.user.payment_score }} 
+                                                            {% if entry.user.payment_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.payment_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}                                                            
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% empty %}
+                                            <li class="list-group-item">No active users available.</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Task Historic Chart Tab -->
+                            <div class="tab-pane fade" id="tasks-historic" role="tabpanel" aria-labelledby="tasks-historic-tab">
+                                <div class="leaderboard-container mt-3">
+                                    <canvas id="historicTaskChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gifts Category -->
+                    <div class="tab-pane fade" id="gifts" role="tabpanel" aria-labelledby="v-gifts-tab">
+                        <!-- Nested sub-tabs for Gift -->
+                        <ul class="nav nav-tabs mb-2" id="giftsSubTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="gifts-leaderboard-tab" data-bs-toggle="tab" data-bs-target="#gifts-leaderboard" type="button" role="tab" aria-controls="gifts-leaderboard" aria-selected="true">Leaderboard</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="gifts-historic-tab" data-bs-toggle="tab" data-bs-target="#gifts-historic" type="button" role="tab" aria-controls="gifts-historic" aria-selected="false">Historic</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="giftsSubTabsContent">
+                            <!-- Gift Leaderboard -->
+                            <div class="tab-pane fade show active" id="gifts-leaderboard" role="tabpanel" aria-labelledby="gifts-leaderboard-tab">
+                                <div class="leaderboard-container mt-3">
+                                    <ul class="list-group">
+                                        {% for entry in leaderboard_gifts %}
+                                            <li class="list-group-item {% if entry.rank_change != 0 %}animate-change{% endif %}">
+                                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                                    <!-- Ranking info -->
+                                                    <div class="d-flex flex-wrap align-items-center">
+                                                        <span class="leaderboard-rank {% if entry.current_rank == 1 %}first{% elif entry.current_rank == 2 %}second{% elif entry.current_rank == 3 %}third{% endif %}">
+                                                            {{ entry.current_rank }}.
+                                                        </span>
+                                                        {% if entry.current_rank <= 3 %}
+                                                            <span class="username-badge {% if entry.current_rank == 1 %}first{% elif entry.current_rank == 2 %}second{% elif entry.current_rank == 3 %}third{% endif %}">
+                                                            {{ entry.user.user.username }}
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="username-text">
+                                                            {{ entry.user.user.username }}
+                                                            </span>
+                                                        {% endif %}
+                                                        <span class="points">
+                                                            &nbsp;&nbsp;{{ entry.user.gift_score }} pts
+                                                        </span>
+                                                        <span class="past-rank ms-2">
+                                                            (Past: {{ entry.previous_rank }})
+                                                            {% if entry.rank_change > 0 %}
+                                                                <span class="total-arrow arrow-up">&#x2191;</span>
+                                                            {% elif entry.rank_change < 0 %}
+                                                                <span class="total-arrow arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="total-arrow arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                        </span>
+                                                        <span class="total-score text-muted ms-2">
+                                                            (Total: {{ entry.user.total_score }} pts)
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- Other scores in the same row -->
+                                                    <div class="d-flex flex-wrap align-items-center">
+                                                        <small class="sub-scores ms-3">
+                                                            <!-- Total score -->
+                                                            Total: {{ entry.user.total_score }} pts 
+                                                            {% if entry.user.total_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.total_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Role score -->
+                                                            &nbsp;&nbsp;Roles: {{ entry.user.role_score }} pts 
+                                                            {% if entry.user.role_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.role_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Task score -->
+                                                            &nbsp;&nbsp;Tasks: {{ entry.user.task_score }} pts 
+                                                            {% if entry.user.task_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.task_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Payment score -->
+                                                            &nbsp;&nbsp;Payments: {{ entry.user.payment_score }} 
+                                                            {% if entry.user.payment_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.payment_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}                                                            
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% empty %}
+                                            <li class="list-group-item">No active users available.</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Gift Historic Chart Tab -->
+                            <div class="tab-pane fade" id="gifts-historic" role="tabpanel" aria-labelledby="gifts-historic-tab">
+                                <div class="leaderboard-container mt-3">
+                                    <canvas id="historicGiftChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payments Category -->
+                    <div class="tab-pane fade" id="payments" role="tabpanel" aria-labelledby="v-payments-tab">
+                        <!-- Nested sub-tabs for Payment -->
+                        <ul class="nav nav-tabs mb-2" id="paymentsSubTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="payments-leaderboard-tab" data-bs-toggle="tab" data-bs-target="#payments-leaderboard" type="button" role="tab" aria-controls="payments-leaderboard" aria-selected="true">Leaderboard</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="payments-historic-tab" data-bs-toggle="tab" data-bs-target="#payments-historic" type="button" role="tab" aria-controls="payments-historic" aria-selected="false">Historic</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="paymentsSubTabsContent">
+                            <!-- Payment Leaderboard -->
+                            <div class="tab-pane fade show active" id="payments-leaderboard" role="tabpanel" aria-labelledby="payments-leaderboard-tab">
+                                <div class="leaderboard-container mt-3">
+                                    <ul class="list-group">
+                                        {% for entry in leaderboard_payments %}
+                                            <li class="list-group-item {% if entry.rank_change != 0 %}animate-change{% endif %}">
+                                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                                    <!-- Ranking info -->
+                                                    <div class="d-flex flex-wrap align-items-center">
+                                                        <span class="leaderboard-rank {% if entry.current_rank == 1 %}first{% elif entry.current_rank == 2 %}second{% elif entry.current_rank == 3 %}third{% endif %}">
+                                                            {{ entry.current_rank }}.
+                                                        </span>
+                                                        {% if entry.current_rank <= 3 %}
+                                                            <span class="username-badge {% if entry.current_rank == 1 %}first{% elif entry.current_rank == 2 %}second{% elif entry.current_rank == 3 %}third{% endif %}">
+                                                            {{ entry.user.user.username }}
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="username-text">
+                                                            {{ entry.user.user.username }}
+                                                            </span>
+                                                        {% endif %}
+                                                        <span class="points">
+                                                            &nbsp;&nbsp;{{ entry.user.payment_score }} pts
+                                                        </span>
+                                                        <span class="past-rank ms-2">
+                                                            (Past: {{ entry.previous_rank }})
+                                                            {% if entry.rank_change > 0 %}
+                                                                <span class="total-arrow arrow-up">&#x2191;</span>
+                                                            {% elif entry.rank_change < 0 %}
+                                                                <span class="total-arrow arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="total-arrow arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                        </span>
+                                                        <span class="total-score text-muted ms-2">
+                                                            (Total: {{ entry.user.total_score }} pts)
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- Other scores in the same row -->
+                                                    <div class="d-flex flex-wrap align-items-center">
+                                                        <small class="sub-scores ms-3">
+                                                            <!-- Total score -->
+                                                            Total: {{ entry.user.total_score }} pts 
+                                                            {% if entry.user.total_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.total_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Role score -->
+                                                            &nbsp;&nbsp;Roles: {{ entry.user.role_score }} pts 
+                                                            {% if entry.user.role_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.role_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Task score -->
+                                                            &nbsp;&nbsp;Tasks: {{ entry.user.task_score }} pts 
+                                                            {% if entry.user.task_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.task_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                            <!-- Gift score -->
+                                                            &nbsp;&nbsp;Gifts: {{ entry.user.gift_score }} pts 
+                                                            {% if entry.user.gift_arrow == "up" %}
+                                                                <span class="arrow-up">&#x2191;</span>
+                                                            {% elif entry.user.gift_arrow == "down" %}
+                                                                <span class="arrow-down">&#x2193;</span>
+                                                            {% else %}
+                                                                <span class="arrow-right">&#x2192;</span>
+                                                            {% endif %}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% empty %}
+                                            <li class="list-group-item">No active users available.</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Payment Historic Chart Tab -->
+                            <div class="tab-pane fade" id="payments-historic" role="tabpanel" aria-labelledby="payments-historic-tab">
+                                <div class="leaderboard-container mt-3">
+                                    <canvas id="historicPaymentChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Vertical Tabs -->
+            <div class="col-md-3">
+                <ul class="nav nav-pills flex-column" id="vertical-tabs" role="tablist">
+                    <!-- Total Tab -->
+                    <li class="nav-item">
+                        <a class="nav-link active" id="v-total-tab" data-bs-toggle="pill" href="#total" role="tab" aria-controls="total" aria-selected="true">Total</a>
+                    </li>
+                    <!-- Roles Tab -->
+                    <li class="nav-item">
+                        <a class="nav-link" id="v-roles-tab" data-bs-toggle="pill" href="#roles" role="tab" aria-controls="roles" aria-selected="false">Roles</a>
+                    </li>
+                    <!-- Tasks Tab -->
+                    <li class="nav-item">
+                        <a class="nav-link" id="v-tasks-tab" data-bs-toggle="pill" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">Tasks</a>
+                    </li>
+                    <!-- Gifts Tab -->
+                    <li class="nav-item">
+                        <a class="nav-link" id="v-gifts-tab" data-bs-toggle="pill" href="#gifts" role="tab" aria-controls="gifts" aria-selected="false">Gifts</a>
+                    </li>
+                    <!-- Payments Tab -->
+                    <li class="nav-item">
+                        <a class="nav-link" id="v-payments-tab" data-bs-toggle="pill" href="#payments" role="tab" aria-controls="payments" aria-selected="false">Payments</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block extra_js %}
+    <!-- Link to source for chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+    <script>
+        // Event listeners for historic chart data
+        document.addEventListener('DOMContentLoaded', function(){
+            // Register ChartDataLabels plugin
+            Chart.register(ChartDataLabels);
+
+            // Parse historic JSON data passed from view
+            var historicTotalData = JSON.parse('{{ historic_total_json|escapejs }}');
+            var historicRoleData = JSON.parse('{{ historic_role_json|escapejs }}');
+            var historicTaskData = JSON.parse('{{ historic_task_json|escapejs }}');
+            var historicGiftData = JSON.parse('{{ historic_gift_json|escapejs }}');
+            var historicPaymentData = JSON.parse('{{ historic_payment_json|escapejs }}');
+
+            // Common chart options with ChartDataLabels plugin
+            var commonOptions = {
+                responsive: true,
+                layout: {
+                    padding: {
+                    top: 20
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                    display: true,
+                    clip: false, // allow labels to extend outside the chart area
+                    align: 'end',
+                    anchor: 'end',
+                    offset: -1, 
+                    formatter: function(value, context) {
+                        var dataset = context.chart.data.datasets[context.datasetIndex];
+                        // Only show label on last data point
+                        if (context.dataIndex === dataset.data.length - 1) {
+                            return dataset.label;
+                        }
+                        return '';
+                    },
+                    color: function(context) {
+                        return context.dataset.borderColor;
+                    },
+                    font: { weight: 'bold' }
+                    }
+                }
+                };
+
+            // Initialize Total Historic Chart
+            var ctxTotal = document.getElementById('historicTotalChart').getContext('2d');
+            new Chart(ctxTotal, {
+                type: 'line',
+                data: historicTotalData,
+                options: commonOptions
+            });
+
+            // Initialize Role Historic Chart
+            var ctxRole = document.getElementById('historicRoleChart').getContext('2d');
+            new Chart(ctxRole, {
+                type: 'line',
+                data: historicRoleData,
+                options: commonOptions
+            });
+
+            // Initialize Task Historic Chart
+            var ctxTask = document.getElementById('historicTaskChart').getContext('2d');
+            new Chart(ctxTask, {
+                type: 'line',
+                data: historicTaskData,
+                options: commonOptions
+            });
+
+            // Initialize Gift Historic Chart
+            var ctxGift = document.getElementById('historicGiftChart').getContext('2d');
+            new Chart(ctxGift, {
+                type: 'line',
+                data: historicGiftData,
+                options: commonOptions
+            });
+
+            // Initialize Payment Historic Chart
+            var ctxPayment = document.getElementById('historicPaymentChart').getContext('2d');
+            new Chart(ctxPayment, {
+                type: 'line',
+                data: historicPaymentData,
+                options: commonOptions
+            });
+        });
+    </script>
+{% endblock %}

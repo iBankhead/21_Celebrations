@@ -1,0 +1,68 @@
+<!-- templates/event_planner/event_transactions.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+{% load math_extras %}
+
+
+{% block title %}Event Transactions for {{ event.title }}{% endblock %}
+
+<!-- CSS -->
+{% block extra_css %}
+    <style>
+        .transactions-table {
+            margin-top: 20px;
+        }
+        .scrollable {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Event Transactions for {{ event.title }}</h2>
+
+        <div class="scrollable">
+            <!-- Table with transactions of event -->
+            <table class="table table-striped transactions-table">
+                <!-- Header -->
+                <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Amount</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
+                        <th>Status</th>
+                        <th>Due?</th> 
+                    </tr>
+                </thead>
+
+                <!-- Body -->
+                <tbody>
+                    {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.from_user }}</td>
+                            <td>{{ transaction.to_user }}</td>
+                            <td>{{ transaction.amount|floatformat:2 }}</td>
+                            <td>{{ transaction.created_at|date:"M d, Y H:i" }}</td>
+                            <td>{{ transaction.updated_at|date:"M d, Y H:i" }}</td>
+                            <td>{{ transaction.get_status_display }}</td>
+                            <td class="text-danger">{{ transaction|due_status:now }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">No transactions found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Button -->
+        <a href="{% url 'event_final' %}" class="btn btn-secondary">Back</a>
+    </div>
+{% endblock %}

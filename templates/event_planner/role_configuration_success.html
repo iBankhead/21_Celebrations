@@ -1,0 +1,21 @@
+<!-- templates/event_planner/role_configuration_success.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+
+{% block title %}Settings Saved{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Role Settings Saved</h2>
+        <p>Your role configuration has been updated successfully.</p>
+    </div>
+
+    <script>
+        // Call parent window function to close modal
+        window.parent.closeRoleConfigurationModal();
+        // Reload parent page
+        window.parent.location.reload();
+    </script>
+{% endblock %}

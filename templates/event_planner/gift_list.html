@@ -1,0 +1,64 @@
+<!-- templates/event_planner/gift_list.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+
+
+{% block title %}Open Gift Searches{% endblock %}
+
+<!-- CSS -->
+{% block extra_css %}
+    <style>
+        /* Reduce spacing between cards and text */
+        .card {
+            margin-bottom: 1rem;
+            background-color: var(--creme-white);
+        }
+        .card-title {
+            margin-bottom: 0.5rem;
+        }
+        .card-text {
+            margin-bottom: 0.5rem;
+        }
+        h2 {
+            margin-bottom: 1rem;
+        }
+        /* Remove default link styles while preserving card appearance */
+        a.card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h2>Open Gift Searches</h2>
+    {% if gift_searches %}
+        <div class="row">
+            {% for search in gift_searches %}
+                <!-- List all open gift searches (deadline not reached) -->
+                <div class="col-md-4">
+                    <!-- Wrap card body with detail link -->
+                    <a href="{% url 'gift_search_detail' search.id %}" class="card-link">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <!-- Gift search details -->
+                                <h4 class="card-title" style="color: var(--gold);">{{ search.title }}</h4>
+                                <p class="card-text">{{ search.purpose|truncatewords:20 }}</p>
+                                <p class="card-text">
+                                    <small class="text-muted">Deadline: {{ search.deadline|date:"M d, Y" }}</small>
+                                </p>
+                                
+                                <p class="card-text">
+                                    <small class="text-muted">For: {{ search.donee }}</small>
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No gift searches available at this time.</p>
+    {% endif %}
+{% endblock %}

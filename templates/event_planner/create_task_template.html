@@ -1,0 +1,53 @@
+<!-- templates/event_planner/create_task_template.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+
+{% block title %}Create Task Template{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Create Task Template</h2>
+        
+        <form method="post" id="create-task-template-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Create Template</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function(){
+            var form = document.getElementById("create-task-template-form");
+            form.addEventListener("submit", function(e){
+                e.preventDefault();
+                var formData = new FormData(form);
+                // Note: URL includes any GET parameters
+                fetch("{% url 'create_task_template' %}" + window.location.search, {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert("Template '" + data.title + "' created successfully!");
+                        window.opener.location.reload();
+                        window.close();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+            });
+        });
+    </script>
+{% endblock %}

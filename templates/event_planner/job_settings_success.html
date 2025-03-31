@@ -1,0 +1,21 @@
+<!-- templates/event_planner/job_settings_success.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+
+{% block title %}Job Settings Saved{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Job Settings Saved</h2>
+        <p>Your settings have been saved successfully.</p>
+    </div>
+
+    <script>
+        // Call parent window function to close modal
+        window.parent.closeJobSettingsModal();
+        // Reload parent page
+        window.parent.location.reload();
+    </script>
+{% endblock %}

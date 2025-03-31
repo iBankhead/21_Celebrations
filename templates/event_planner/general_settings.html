@@ -1,0 +1,67 @@
+<!-- templates/event_planner/general_settings.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+
+{% block title %}General Settings{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>General Settings</h2>
+        <hr>
+
+        <form method="post" action="{% url 'general_settings' %}">
+            <!--Section Rank Change -->
+            <div>
+                <h3>Rank Change</h3>
+                <p>
+                    Configure the interval used for rank changes.
+                    This determines how many days back the system looks for past scores to update the user profile.
+                    Allowed values are between 1 and 365 days.
+                </p>
+
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="rank_change_interval" class="form-label">Rank Change Interval (days):</label>
+                    <p>{{ description_interval }}</p>
+                    <input type="number" class="form-control small-integer-input" id="rank_change_interval" name="rank_change_interval"
+                            min="1" max="365" value="{{ current_interval }}" style="width:80px;">
+                </div>
+                <hr>
+            </div>
+
+            <!-- Section Payments -->
+            <div>
+                <h3>Payments</h3>
+                <p>
+                    Configure general payment settings.
+                    This determines how payments are converted into points. Allowed values are between 0.0 and 10.0 days.
+                    If a payment is not paid on time, the user will be deducted penalty points once. The time depends on the payment type.
+                </p>
+
+                <!-- Conversion Rate -->
+                <h4>Conversion Rate</h4>
+                <div class="mb-3">
+                    <label for="conversion_rate" class="form-label">Conversion Rate (decimal):</label>
+                    <p>{{ description_rate }}</p>
+                    <input type="number" class="form-control small-integer-input" id="conversion_rate" name="conversion_rate"
+                            min="0.0" max="10.0" value="{{ current_rate }}" step="0.1" style="width:80px;">
+                </div>
+
+                <!-- Payment Penalty -->
+                <h4>Payment Penalty</h4>
+                <div class="mb-3">
+                    <label for="payment_penalty" class="form-label">Penalty for Late Payment (integer):</label>
+                    <p>{{ description_penalty }}</p>
+                    <input type="number" class="form-control small-integer-input" id="payment_penalty" name="payment_penalty"
+                            min="-100" max="0" value="{{ current_penalty }}" style="width:80px;">
+                </div>
+                <hr>
+            </div>
+
+            <!-- Buttons -->
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
+    </div>
+{% endblock %}

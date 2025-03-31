@@ -1,0 +1,99 @@
+<!-- templates/event_planner/index.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <h2 class="mb-4 text-center">Dashboard</h2>
+        
+        <div class="container">
+            <div class="row">
+                <!-- Open Tasks -->
+                <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            {% block open_tasks %}
+                                {% include "event_planner/dashboard/open_tasks.html" %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+                <!-- User Points -->
+                <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            {% block user_points %}
+                                {% include "event_planner/dashboard/user_points.html" %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <!-- Upcoming Events -->
+                <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            {% block upcoming_events %}
+                                {% include "event_planner/dashboard/upcoming_events.html" %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+                <!-- Leaderboard -->
+                <div class="col-md-6 col-sm-12 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            {% block payments %}
+                                {% include "event_planner/dashboard/payments.html" %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center mt-5">
+            <h2>Welcome to 21 Celebrations</h2>
+            <p class="lead">
+                Experience a unique way to celebrate office milestones and events.
+                Sign in or sign up to access your personalized dashboard.
+            </p>
+            <a class="btn btn-primary me-2" href="{% url 'account_login' %}">Sign in</a>
+            <a class="btn btn-primary" href="{% url 'account_signup' %}">Sign up</a>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function(){
+            // Get open tasks container
+            var openTasksContainer = document.getElementById('open-tasks');
+            // Get user points container
+            var userPointsScroll = document.getElementById('user-points-scroll');
+            if (openTasksContainer && userPointsScroll) {
+                // Get height of open tasks container
+                var height = openTasksContainer.offsetHeight;
+                // Set max-height of user points container to match height of open tasks 
+                userPointsScroll.style.maxHeight = height + "px";
+            }
+
+            // Get upcoming events container
+            var upcomingEvents = document.getElementById('upcoming-events');
+            // Get payment container
+            var paymentContainerScroll = document.getElementById('payments-scroll');
+            if (upcomingEvents && paymentContainerScroll) {
+                // Get height of upcoming events container
+                var height = upcomingEvents.offsetHeight;
+                // Set max-height of payment container to match height of upcoming events
+                paymentContainerScroll.style.maxHeight = height + "px";
+            }
+        });
+    </script>
+{% endblock %}
+

@@ -1,0 +1,64 @@
+<!-- templates/event_planner/contribute_to_gift.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+
+{% block title %}Contribute{% endblock %}
+
+<!-- CSS -->
+{% block extra_css %}
+    <style>
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        #encouragement {
+            animation: pulse 2s infinite;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Contribute to {{ gift_contribution.title }}</h2>
+
+        <!-- Animated encouragement text -->
+        <div id="encouragement" class="mb-3 text-center" style="font-size: 1.2rem; font-weight: bold; color: var(--gold);">
+            Every extra bit counts – boost your contribution and make a bigger impact!
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- Messages / Errors -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            <!-- Amount -->
+            <div class="mb-3">
+                {{ form.value.label_tag }}
+                {{ form.value }}
+                {% for error in form.value.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Buttons -->
+            <button type="submit" class="btn btn-primary">Confirm Contribution</button>
+        </form>
+    </div>
+{% endblock %}
+
+
+
+
+
+
+
+
+

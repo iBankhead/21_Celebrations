@@ -1,0 +1,192 @@
+<!-- templates/event_planner/closed_contribution_list.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+
+
+{% block title %}Closed Gift Contributions{% endblock %}
+
+<!--  CSS -->
+{% block extra_css %}
+    <style>
+        /* Reduce spacing between event cards and text */
+        .card {
+            margin-bottom: 1rem; 
+            background-color: var(--creme-white);
+        }
+        .card-title {
+            margin-bottom: 0.5rem; 
+        }
+        .card-text {
+            margin-bottom: 0.5rem; 
+        }
+        h2 {
+            margin-bottom: 1rem; 
+        }
+        /* Remove default link styles while preserving card appearance */
+        a.card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Closed Gift Contributions</h2>
+
+        {% if closed_contributions %}
+            <div class="row">
+                {% for gift in closed_contributions %}
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <!-- Contribution card -->
+                            <div class="card-body">
+                                <!-- Contribution details -->
+                                <h4 class="card-title" style="color: var(--gold);">{{ gift.title }}</h4>
+                                <p class="card-text" style="color: var(--deep-navy);">Donee: {{ gift.donee }}</p>
+                                <p class="card-text"><small class="text-muted">Deadline: {{ gift.deadline|date:"M d, Y" }}</small></p>
+                                <p class="card-text"><small class="text-muted">Reached: €{{ gift.total_contributions }}</small></p>
+
+                                <!-- Progress bar -->
+                                {% if gift.collection_target %}
+                                    <p class="card-text"><strong>Target:</strong> €{{ gift.collection_target }}</p>
+                                        <div class="progress mb-2">
+                                        <div class="progress-bar" role="progressbar" style="width: {{ gift.progress }};" aria-valuenow="{{ gift.progress|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100">
+                                            {{ gift.progress|floatformat:0 }}%
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Buttons -->
+                            <div class="card-footer">
+                                <!-- Gift search (if any) -->
+                                {% if gift.status == "canceled" %}
+                                    <!-- Status is 'canceled' -->
+                                    <div class="text-danger">
+                                        <strong>Gift Contribution canceled!</strong>
+                                    </div>
+                                {% else %}
+                                    <!-- Status is 'open' or 'closed' -->
+                                    {% if gift.gift_search %}
+                                        {% if gift.gift_search.deadline > today %}
+                                            <!-- If gift search deadline is not reached, redirect to voting page -->
+                                            <a class="btn btn-primary" href="{% url 'gift_search_detail' gift.gift_search.id %}">
+                                                Vote on Gift
+                                            </a>
+                                        {% else %}
+                                            <!-- If gift search deadline is reached, open a modal with result -->
+                                            <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#proposalModal{{ gift.gift_search.id }}">
+                                                View Search Result
+                                            </a>
+                                        {% endif %}
+                                    {% endif %}
+                                    
+                                    <!-- Buttons (only manager) -->
+                                    {% if request.user.userprofile == gift.manager %}
+                                        <!-- Update -->
+                                        <a class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#updateModal{{ gift.id }}">
+                                            Update
+                                        </a>
+                                        <!-- List contributors -->
+                                        <a class="btn btn-secondary" href="{% url 'list_gift_contributions' gift.id %}">Contributors</a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if gift.gift_search and gift.gift_search.deadline <= today %}
+                        <!-- Modal for displaying gift search result -->
+                        <div class="modal fade" id="proposalModal{{ gift.gift_search.id }}" tabindex="-1" aria-labelledby="proposalModalLabel{{ gift.gift_search.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <!-- Header -->
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="proposalModalLabel{{ gift.gift_search.id }}">Gift Search Result: {{ gift.gift_search.title }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <!-- Body -->
+                                    <div class="modal-body">
+                                        <!-- Search details -->
+                                        <p><strong>Description:</strong> {{ gift.gift_search.best_proposal.description }}</p>
+                                        <p><strong>Deadline:</strong> {{ gift.gift_search.deadline|date:"M d, Y" }}</p>
+                                        <p><strong>Proposed by:</strong> {{ gift.gift_search.best_proposal.proposed_by }}</p>
+                                        
+                                        <!-- Winner details -->
+                                        {% if gift.gift_search.best_proposal %}
+                                            <p><strong>Best Proposal:</strong> {{ gift.gift_search.best_proposal.title }}</p>
+                                            <p><strong>Votes:</strong> {{ gift.gift_search.best_proposal.votes.count }}</p>
+
+                                            <!-- Photo -->
+                                            {% if gift.gift_search.best_proposal.photo %}
+                                                <img src="{{ gift.gift_search.best_proposal.photo.url }}" alt="{{ gift.gift_search.best_proposal.title }}" class="img-fluid mb-2">
+                                            {% endif %}
+
+                                            <!-- Link -->
+                                            {% if gift.gift_search.best_proposal.link %}
+                                                <p><a href="{{ gift.gift_search.best_proposal.link }}" target="_blank">View Gift</a></p>
+                                            {% endif %}
+
+                                        {% else %}
+                                            <p>No proposals submitted.</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Footer -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal for updating gift contribution -->
+                        <div class="modal fade" id="updateModal{{ gift.id }}" tabindex="-1" aria-labelledby="updateModalLabel{{ gift.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <!-- Header -->
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Update</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+
+                                <!-- Body -->
+                                <div class="modal-content">
+                                    <!-- Load update view in an iframe -->
+                                    <iframe src="{% url 'update_gift_contribution' %}?gift_contribution_id={{ gift.id }}" style="width:100%; height:450px; border:none;"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No closed gift contributions available.</p>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        window.addEventListener('message', function(event) {
+            if (event.data && (event.data.action === 'updateSuccess')) {
+                // Locate modal in parent document
+                var modalEl = document.getElementById(event.data.modalId);
+                if (modalEl) {
+                    var modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if(modalInstance){
+                        modalInstance.hide();
+                    } else {
+                        modalInstance = new bootstrap.Modal(modalEl);
+                        modalInstance.hide();
+                    }
+                }
+                // Reload page 
+                var currentUrl = new URL(window.location.href);
+                window.location.href = currentUrl.toString();
+            }
+        });
+    </script>
+{% endblock %}

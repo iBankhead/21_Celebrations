@@ -1,0 +1,24 @@
+<!-- templates/event_planner/add_task_modal.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+
+
+{% block title %}Add Task{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Add Task</h2>
+
+        <!-- Form to add task to event -->
+        <form method="post" action="{% url 'add_task' event.id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <p class="text-muted">
+                Note: Fields such as event, points awarded, completed at are set automatically.
+            </p>
+            <button type="submit" class="btn btn-primary">Add Task</button>
+            <a href="{% url 'edit_event_detail' event.id %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,77 @@
+<!-- templates/event_planner/calendar.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+
+
+{% block title %}Calendar{% endblock %}
+
+<!-- CSS -->
+{% block extra_css %}
+    <style>
+        /* Calendar container styling */
+        #calendar {
+            max-width: 900px;
+            margin: 40px auto;
+        }
+        /* Wrap event titles */
+        .fc-event-title {
+            white-space: normal !important;
+            word-break: break-word;
+        }
+        /* Increase icon size for icons */
+            .fc-event .fc-event-title i.bi-baby {
+            font-size: 2em;
+            vertical-align: middle;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    <!-- Calendar container -->
+    <div class="container my-4">
+        <h2>Calendar</h2>
+        <div id="calendar"></div>
+    </div>
+{% endblock %}
+
+
+{% block extra_js %}
+    <!-- Calendar source -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendarEvents = JSON.parse('{{ calendar_events_json|escapejs }}');
+            
+            // Display calendar with items
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    },
+                    events: calendarEvents,
+
+                    eventDidMount: function(info) {
+                        if (info.event.extendedProps.icon) {
+                            var iconHtml = '<i class="' + info.event.extendedProps.icon + '" style="margin-right: 4px;"></i>';
+                            var titleEl = info.el.querySelector('.fc-event-title');
+                            if (titleEl) {
+                                titleEl.innerHTML = iconHtml + titleEl.innerHTML;
+                            }
+                        }
+                    },
+
+                    eventClick: function(info) {
+                        //alert(info.event.title);
+                    }
+                });
+            calendar.render();
+        });
+    </script>
+{% endblock %}
+

@@ -1,0 +1,766 @@
+<!-- templates/event_planner/edit_event_detail.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+{% load math_extras %}
+
+
+{% block title %}Edit Event Details{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Edit Event Details</h2>
+    
+        <!-- Event details -->
+        <div class="card mb-4">
+            <!-- Header -->
+            <div class="card-header">
+                Basic Event Information
+                <!-- Button to trigger modal for editing (only managers) -->
+                {% if is_manager %}
+                    <button class="btn btn-sm btn-primary float-end" data-bs-toggle="modal" data-bs-target="#editEventModal">Edit</button>
+                {% endif %}
+            </div>
+
+            <!-- Body -->
+            <div class="card-body">
+                <p><strong>Title:</strong> {{ event.title }}</p>
+                <p><strong>Description:</strong> {{ event.description }}</p>
+                <p><strong>Type:</strong> {{ event.event_type }}</p>
+                <p><strong>Date:</strong> {{ event.date }}</p>
+                <p><strong>Time:</strong> {{ event.time }}</p>
+                <p><strong>Location:</strong> {{ event.location }}</p>
+            </div>
+        </div>
+
+        <!-- Roles Management Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                Roles
+                <!-- Only managers can add/edit/delete -->
+                {% if is_manager %}
+                    <button class="btn btn-sm btn-primary float-end" data-bs-toggle="modal" data-bs-target="#addRoleModal">Add Role</button>
+                {% endif %}
+            </div>
+
+            <!-- Form elements -->
+            <div class="card-body">
+                <!-- Tab Navigation -->
+                <ul class="nav nav-tabs" id="roleTabs" role="tablist">
+                    <!-- Tab Managers -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="manager-tab" data-bs-toggle="tab" data-bs-target="#manager" type="button" role="tab" aria-controls="manager" aria-selected="true">
+                            Managers ({{ event.managers.count }})
+                        </button>
+                    </li>
+
+                    <!-- Tab Organizers -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="organizer-tab" data-bs-toggle="tab" data-bs-target="#organizer" type="button" role="tab" aria-controls="organizer" aria-selected="false">
+                            Organizers ({{ event.organizers.count }})
+                        </button>
+                    </li>
+
+                    <!-- Tab Honourees -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="honouree-tab" data-bs-toggle="tab" data-bs-target="#honouree" type="button" role="tab" aria-controls="honouree" aria-selected="false">
+                            Honourees ({{ event.honourees.count }})
+                        </button>
+                    </li>
+
+                    <!-- Tab Attendees -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="attendee-tab" data-bs-toggle="tab" data-bs-target="#attendee" type="button" role="tab" aria-controls="attendee" aria-selected="false">
+                            Attendees ({{ event.attendees.count }})
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Tab Content -->
+                <div class="tab-content" id="roleTabsContent">
+                    <!-- Tab Managers -->
+                    <div class="tab-pane fade show active" id="manager" role="tabpanel" aria-labelledby="manager-tab">
+                        {% for participant in event.eventparticipant_set.all %}
+                            {% if participant.role == 'manager' %}
+                                <!-- List managers -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>{{ participant.user_profile.user.username }} ({{ participant.role }})</span>
+                                    <!-- Only managers can edit/delete -->
+                                    {% if is_manager %}
+                                        <button class="btn btn-sm btn-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteParticipantModal" 
+                                                data-participant-id="{{ participant.id }}"
+                                                onclick="document.getElementById('delete-participant-id').value = '{{ participant.id }}'">
+                                            Delete
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Tab Organizers -->
+                    <div class="tab-pane fade" id="organizer" role="tabpanel" aria-labelledby="organizer-tab">
+                        {% for participant in event.eventparticipant_set.all %}
+                            {% if participant.role == 'organizer' %}
+                                <!-- List organizers -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>{{ participant.user_profile.user.username }} ({{ participant.role }})</span>
+                                    <!-- Only managers can edit/delete -->
+                                    {% if is_manager %}
+                                        <button class="btn btn-sm btn-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteParticipantModal" 
+                                                data-participant-id="{{ participant.id }}"
+                                                onclick="document.getElementById('delete-participant-id').value = '{{ participant.id }}'">
+                                            Delete
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Tab Honourees -->
+                    <div class="tab-pane fade" id="honouree" role="tabpanel" aria-labelledby="honouree-tab">
+                        {% for participant in event.eventparticipant_set.all %}
+                            {% if participant.role == 'honouree' %}
+                                <!-- List honorees -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>{{ participant.user_profile.user.username }} ({{ participant.role }})</span>
+                                    <!-- Only managers can edit/delete -->
+                                    {% if is_manager %}
+                                        <button class="btn btn-sm btn-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteParticipantModal" 
+                                                data-participant-id="{{ participant.id }}"
+                                                onclick="document.getElementById('delete-participant-id').value = '{{ participant.id }}'">
+                                            Delete
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Tab Attendees -->
+                    <div class="tab-pane fade" id="attendee" role="tabpanel" aria-labelledby="attendee-tab">
+                        {% for participant in event.eventparticipant_set.all %}
+                            {% if participant.role == 'attendee' %}
+                                <!-- List attendees -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>{{ participant.user_profile.user.username }} ({{ participant.role }})</span>
+                                    <!-- Only managers can edit/delete -->
+                                    {% if is_manager %}
+                                        <button class="btn btn-sm btn-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteParticipantModal" 
+                                                data-participant-id="{{ participant.id }}"
+                                                onclick="document.getElementById('delete-participant-id').value = '{{ participant.id }}'">
+                                            Delete
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Management Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                Tasks
+                <!-- Only managers can add/edit/delete -->
+                {% if is_manager %}
+                    <button class="btn btn-sm btn-primary float-end" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                        Add Task
+                    </button>
+                {% endif %}
+            </div>
+
+            <!-- Task elements -->
+            <div class="card-body">
+                {% if event.tasks.all %}
+                    <!-- Task details -->
+                    {% for task in event.tasks.all %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <!-- Title -->
+                                <strong>{{ task.title }}</strong><br>
+                                <small class="text-muted">
+                                    <!-- Due date -->
+                                    Due: {{ task.due_date|date:"M d, Y H:i" }} &nbsp; | &nbsp;
+                                    <!-- Status -->
+                                    Status: {{ task.status }}
+                                    <!-- Display status icons -->
+                                    {% if task.status == 'completed' %}
+                                        <i class="bi bi-trophy-fill text-success"></i>
+                                    {% elif task.status == 'pending' %}
+                                        <i class="bi bi-hourglass-split text-warning"></i>
+                                    {% elif task.status == 'in_progress' %}
+                                        <i class="bi bi-repeat text-primary"></i>
+                                    {% elif task.status == 'overdue' %}
+                                        <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                                    {% elif task.status == 'reminder' %}
+                                        <i class="bi bi-envelope-check-fill text-danger-emphasis"></i>
+                                    {% else %}
+                                        <i class="bi bi-info-circle-fill text-info"></i>
+                                    {% endif %}
+
+                                    <!-- Display points awarded -->
+                                    {% if task.points_awarded %}
+                                        {% if task.points_awarded > 0 %}
+                                            <span class="ms-2 text-success">
+                                                <i class="bi bi-award"></i> {{ task.points_awarded }}
+                                            </span>
+                                        {% elif task.points_awarded < 0 %}
+                                            <span class="ms-2 text-danger">
+                                                <i class="bi bi-award"></i> {{ task.points_awarded }}
+                                            </span>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    <!-- Cost relations (if any) -->
+                                    {% if task.is_cost_related and task.budget and task.actual_expenses %}
+                                        <br>
+                                        {% if task.actual_expenses > task.budget %}
+                                            <span class="text-danger">
+                                                Budget exceeded by: €{{ task.actual_expenses|subtract:task.budget|floatformat:2 }}
+                                            </span>
+                                        {% elif task.actual_expenses < task.budget %}
+                                            <span class="text-success">
+                                                Under budget by: €{{ task.budget|subtract:task.actual_expenses|floatformat:2 }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">
+                                                Budget met exactly.
+                                            </span>
+                                        {% endif %}
+                                    {% endif %} 
+
+                                    <!-- Assignees -->
+                                    <br>
+                                    Responsible: 
+                                    {% for user in task.assigned_to.all %}
+                                        {{ user }}{% if not forloop.last %}, {% endif %}
+                                        {% empty %}
+                                        No one assigned.
+                                    {% endfor %}
+                                </small>
+                            </div>
+                            
+                            <!-- Only managers can add/edit/delete -->
+                            {% if is_manager %}
+                                <span>
+                                    <!-- Edit button -->
+                                    <button class="btn btn-sm btn-secondary" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editTaskModal"
+                                            data-task-id="{{ task.id }}">
+                                    Edit
+                                    </button>
+                                    <!-- Delete button -->
+                                    <button class="btn btn-sm btn-danger" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteTaskModal"
+                                            onclick="document.getElementById('delete-task-id').value='{{ task.id }}'">
+                                    Delete
+                                    </button>
+                                </span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No tasks added.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Modals for add, edit, delete -->
+        <!-- Modal for editing event -->
+        <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- View: edit_event_detail, Form: EventForm -->
+                    <form method="post" action="{% url 'edit_event_detail' event.id %}">
+                        {% csrf_token %}
+                        <!-- Header -->
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editEventModalLabel">Edit Event Information</h5>
+                            <!-- Only managers can edit/delete -->
+                            {% if is_manager %}
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            {% endif %}
+                        </div>
+
+                        <!-- Body -->
+                        <div class="modal-body">
+                            {{ form.as_p }}
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="modal-footer">
+                            <!-- Only managers can edit/delete -->
+                            {% if is_manager %}
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            {% endif %}
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for adding role-->
+        <div class="modal fade" id="addRoleModal" tabindex="-1" aria-labelledby="addRoleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- View: add_role, Form: AddRoleForm -->
+                    <form method="post" action="{% url 'add_role' event.id %}">
+                        {% csrf_token %}
+                        <!-- Header -->
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addRoleModalLabel">Add Role</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="modal-body">
+                            <!-- Render AddRoleForm passed as role_form in context -->
+                            {{ role_form.as_p }}
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="modal-footer">
+                            <!-- Only managers can edit/delete -->
+                            {% if is_manager %}
+                                <button type="submit" class="btn btn-primary">Add Role</button>
+                            {% endif %}
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for deleting role -->
+        <div class="modal fade" id="deleteParticipantModal" tabindex="-1" aria-labelledby="deleteParticipantModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- View: delete_role, Form:- -->
+                    <form method="post" action="{% url 'delete_role' event.id %}">
+                        {% csrf_token %}
+                        <!-- Header -->
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteParticipantModalLabel">Delete Participant</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="modal-body">
+                            Are you sure you want to remove this participant from the event?
+                            <input type="hidden" name="participant_id" id="delete-participant-id">
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="modal-footer">
+                            <!-- Only managers can edit/delete -->
+                            {% if is_manager %}
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            {% endif %}
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for adding task-->
+        <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <!-- View: add_task, Form: TaskForm -->
+                    <form method="post" action="{% url 'add_task' event.id %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <!-- Header -->
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addTaskModalLabel">Add Task</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        
+                        <!-- Body -->
+                        <div class="modal-body">
+                            {{ task_form.as_p }}
+                            <p class="text-muted">
+                                Note: Fields such as event, points_awarded, completed_at, created_at, and updated_at are set automatically.
+                            </p>
+                        </div>
+                        
+                        <!-- Buttons -->
+                        <div class="modal-footer">
+                            <!-- Only managers can edit/delete -->
+                            {% if is_manager %}
+                                <button type="submit" class="btn btn-primary">Add Task</button>
+                            {% endif %}
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for editing task -->
+        <div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <!-- View: edit_task, Form: TaskEditForm -->
+                    <form id="edit-task-form" method="post" action="{% url 'edit_task' event.id %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="task_id" id="edit-task-id">
+                        <!-- Header -->
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editTaskModalLabel">Edit Task</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="modal-body">
+                            <!-- Error container -->
+                            <div id="editTaskErrors" class="alert alert-danger" style="display:none;"></div>
+
+                            <!-- Assigned To -->
+                            <div class="mb-3">
+                                {{ edit_task_form.assigned_to.label_tag }}
+                                {{ edit_task_form.assigned_to }}
+                                <div class="invalid-feedback" id="error_assigned_to" style="display:none;"></div>
+                            </div>
+                            <!-- Title -->
+                            <div class="mb-3">
+                                {{ edit_task_form.title.label_tag }}
+                                {{ edit_task_form.title }}
+                                <div class="invalid-feedback" id="error_title" style="display:none;"></div>
+                            </div>
+                            <!-- Description -->
+                            <div class="mb-3">
+                                {{ edit_task_form.description.label_tag }}
+                                {{ edit_task_form.description }}
+                                <div class="invalid-feedback" id="error_description" style="display:none;"></div>
+                            </div>
+                            <!-- Notes -->
+                            <div class="mb-3">
+                                {{ edit_task_form.notes.label_tag }}
+                                {{ edit_task_form.notes }}
+                                <div class="invalid-feedback" id="error_notes" style="display:none;"></div>
+                            </div>
+                            <!-- Due Date -->
+                            <div class="mb-3">
+                                {{ edit_task_form.due_date.label_tag }}
+                                {{ edit_task_form.due_date }}
+                                <div class="invalid-feedback" id="error_due_date" style="display:none;"></div>
+                            </div>
+                            <!-- Status (rendered dynamically) -->
+                            <div class="mb-3">
+                                {{ edit_task_form.status.label_tag }}
+                                {{ edit_task_form.status }}
+                                <div class="invalid-feedback" id="error_status" style="display:none;"></div>
+                            </div>
+                            <!-- Is Cost Related -->
+                            <div class="mb-3 form-check">
+                                {{ edit_task_form.is_cost_related }}
+                                {{ edit_task_form.is_cost_related.label_tag }}
+                                <div class="invalid-feedback" id="error_is_cost_related" style="display:none;"></div>
+                            </div>
+                            <!-- Cost Fields -->
+                            <div id="edit-cost-fields">
+                                <div class="mb-3">
+                                    {{ edit_task_form.budget.label_tag }}
+                                    {{ edit_task_form.budget }}
+                                    <div class="invalid-feedback" id="error_budget" style="display:none;"></div>
+                                </div>
+                                <div class="mb-3">
+                                    {{ edit_task_form.actual_expenses.label_tag }}
+                                    {{ edit_task_form.actual_expenses }}
+                                    <div class="invalid-feedback" id="error_actual_expenses" style="display:none;"></div>
+                                </div>
+                            </div>
+                            <!-- Base Points -->
+                            <div class="mb-3">
+                                {{ edit_task_form.base_points.label_tag }}
+                                {{ edit_task_form.base_points }}
+                                <div class="invalid-feedback" id="error_base_points" style="display:none;"></div>
+                            </div>
+                            <!-- Penalty Points -->
+                            <div class="mb-3">
+                                {{ edit_task_form.penalty_points.label_tag }}
+                                {{ edit_task_form.penalty_points }}
+                                <div class="invalid-feedback" id="error_penalty_points" style="display:none;"></div>
+                            </div>
+                            <!-- Attachment -->
+                            <div class="mb-3">
+                                {{ edit_task_form.attachment.label_tag }}
+                                <!-- Container for current attachment link -->
+                                <div id="current-attachment"></div>
+                                {{ edit_task_form.attachment }}
+                                <div class="invalid-feedback" id="error_attachment" style="display:none;"></div>
+                            </div>
+                            <!-- Template -->
+                            <div class="mb-3">
+                                {{ edit_task_form.template.label_tag }}
+                                {{ edit_task_form.template }}
+                                <input type="hidden" name="template" id="hidden-edit-task-template" value="...">
+                                <div class="invalid-feedback" id="error_template" style="display:none;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="modal-footer">
+                            <!-- Only managers can edit/delete -->
+                            {% if is_manager %}                    
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            {% endif %}
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+  
+        <!-- Modal for deleting task -->
+        <div class="modal fade" id="deleteTaskModal" tabindex="-1" aria-labelledby="deleteTaskModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- View: delete_task, Form:- -->
+                    <form method="post" action="{% url 'delete_task' event.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="task_id" id="delete-task-id">
+                        <!-- Header -->
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteTaskModalLabel">Delete Task</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="modal-body">
+                            Are you sure you want to delete this task?
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="modal-footer">
+                            <!-- Only managers can edit/delete -->
+                            {% if is_manager %}
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            {% endif %}
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+    </div>
+{% endblock %}
+
+
+{% block extra_js %}
+    <!-- Script for deleting users from roles (event listeners etc.) -->
+    <script>
+        // Avoid 'Block' error in JS console caused by focus
+        document.addEventListener("DOMContentLoaded", function(){
+            var createModalEl = document.getElementById('deleteParticipantModal');
+            createModalEl.addEventListener('hidden.bs.modal', function () {
+                // If descendant of modal has focus, move to document body
+                if (createModalEl.contains(document.activeElement)) {
+                    document.body.focus();
+                }
+            });
+            // Add blur on cancel button that focus is not retained
+            var cancelButtons = createModalEl.querySelectorAll('.btn-secondary[data-bs-dismiss="modal"]');
+            cancelButtons.forEach(function(btn){
+                btn.addEventListener("click", function(){
+                btn.blur();
+                });
+            });
+        });
+
+        // Attach event listeners to all Delete modal
+        document.addEventListener('DOMContentLoaded', function() {
+            var deleteModalEl = document.getElementById('deleteParticipantModal');
+            if (deleteModalEl) {
+                deleteModalEl.addEventListener('show.bs.modal', function (event) {
+                    // Target is button that triggered the modal
+                    var button = event.relatedTarget;
+                    if (button) {
+                        // Log button HTML to verify attributes
+                        var participantId = button.getAttribute('data-participant-id');
+                        var inputField = deleteModalEl.querySelector('#delete-participant-id');
+                        inputField.value = participantId;
+                    } else {
+                        console.error("No button found when modal is shown.");
+                    }
+                });
+            } else {
+                console.error("Delete Participant Modal element not found in DOM.");
+            }
+        });
+    </script>
+
+    <!-- Script for inserting template defaults in the task -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            // Get template select element
+            var templateSelect = document.getElementById('add-task-template');
+            
+            if (templateSelect) {
+                templateSelect.addEventListener('change', function(){
+                    var template = this.value;
+                    // List of fields to be updated/disabled
+                    var fields = ['title', 'description', 'base_points', 'penalty_points'];
+                    
+                    if (template) {
+                        // Fetch default values from JSON endpoint
+                        fetch(`/get-template-defaults/${template}/`)
+                            .then(response => response.json())
+                            .then(data => {
+                                fields.forEach(function(fieldName) {
+                                    var field = document.getElementById('add-task-' + fieldName);
+                                    if (field && data[fieldName] !== undefined) {
+                                        field.value = data[fieldName];
+                                        // Disable field so user cannot change it
+                                        field.readOnly = true; 
+                                        field.style.backgroundColor = '#e9ecef';
+                                    }
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error fetching template defaults:', error);
+                            });
+                    } else {
+                        // If user clears template selection, re-enable fields for manual input
+                        fields.forEach(function(fieldName) {
+                            var field = document.getElementById('add-task-' + fieldName);
+                            if (field) {
+                                field.readOnly = false;
+                                field.style.backgroundColor = '';
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Script for editing/deleting tasks-->
+    <script>
+        // Avoid 'Block' error in JS console caused by focus
+        document.addEventListener("DOMContentLoaded", function(){
+            var createModalEl = document.getElementById('editTaskModal');
+            createModalEl.addEventListener('hidden.bs.modal', function () {
+                // If descendant of modal has focus, move to document body
+                if (createModalEl.contains(document.activeElement)) {
+                    document.body.focus();
+                }
+            });
+            // Add blur on cancel button that focus is not retained
+            var cancelButtons = createModalEl.querySelectorAll('.btn-secondary[data-bs-dismiss="modal"]');
+            cancelButtons.forEach(function(btn){
+                btn.addEventListener("click", function(){
+                btn.blur();
+                });
+            });
+        });
+
+        // Attach event listeners to all Edit buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            var editButtons = document.querySelectorAll('[data-bs-target="#editTaskModal"]');
+            
+            editButtons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    var taskId = this.getAttribute('data-task-id');
+                    document.getElementById('edit-task-id').value = taskId;
+                
+                    // Construct URL for fetching task data
+                    var baseUrl = "{% url 'get_task_data' event.id 0 %}";
+                    var url = baseUrl.replace('/0/', '/' + taskId + '/');
+                
+                    // Fetch task data from JSON endpoint
+                    fetch(url)
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            // Populate modal fields
+                            var assignedSelect = document.getElementById('edit-task-assigned_to');
+                            if (assignedSelect) {
+                                // Clear any previous selection
+                                for (var i = 0; i < assignedSelect.options.length; i++) {
+                                    assignedSelect.options[i].selected = false;
+                                }
+                                // Iterate over each option and select it if in assigned_to array
+                                for (var i = 0; i < assignedSelect.options.length; i++) {
+                                    var option = assignedSelect.options[i];
+                                    if (data.assigned_to.indexOf(parseInt(option.value)) !== -1) {
+                                        option.selected = true;
+                                    }
+                                }
+                            }
+                            // Set values of other fields
+                            document.getElementById('edit-task-title').value = data.title;
+                            document.getElementById('edit-task-description').value = data.description;
+                            document.getElementById('edit-task-notes').value = data.notes;
+                            document.getElementById('edit-task-due_date').value = data.due_date;
+                            document.getElementById('edit-task-status').value = data.status;
+                            document.getElementById('edit-task-is_cost_related').checked = data.is_cost_related;
+                            document.getElementById('edit-task-budget').value = data.budget;
+                            document.getElementById('edit-task-actual_expenses').value = data.actual_expenses;
+                            document.getElementById('edit-task-base_points').value = data.base_points;
+                            document.getElementById('edit-task-penalty_points').value = data.penalty_points;
+                            // Set the current attachment link if available
+                            var attachmentContainer = document.getElementById('current-attachment');
+                            if (data.attachment_url) {
+                                attachmentContainer.innerHTML = `<p>Current Attachment: <a href="${data.attachment_url}" target="_blank">View File</a></p>`;
+                            } else {
+                                attachmentContainer.innerHTML = '';
+                            }
+                            document.getElementById('edit-task-template').value = data.template;
+                            document.getElementById('hidden-edit-task-template').value = data.template;
+                            // List of fields to be disabled
+                            var fields = ['template', 'title', 'description', 'base_points', 'penalty_points'];
+                            if (data.template) {
+                                fields.forEach(function(fieldName) {
+                                    var field = document.getElementById('edit-task-' + fieldName);
+                                    if (field && data[fieldName] !== undefined) {
+                                        // Disable field so user cannot change it
+                                        if (fieldName == 'template') {
+                                            field.disabled = true;
+                                        // Field set to readonly
+                                        } else {
+                                            field.readOnly = true; 
+                                            field.style.backgroundColor = '#e9ecef';
+                                        }
+                                    }
+                                });
+                            } else {
+                                fields.forEach(function(fieldName) {
+                                    var field = document.getElementById('edit-task-' + fieldName);
+                                    if (field && data[fieldName] !== undefined) {
+                                        // Disable field so user cannot change it
+                                        if (fieldName == 'template') {
+                                            field.disabled = true;
+                                        // Field can be changed
+                                        } else {
+                                            field.readOnly = false; 
+                                            field.style.backgroundColor = '';
+                                        }
+                                    }
+                                });
+                            }
+                        })
+                        .catch(function(error) {
+                            console.error("Error fetching task data:", error);
+                            errorContainer.innerHTML = "<p><strong>" + Error + ":</strong> " + error + "</p>";
+                            errorContainer.style.display = "block";
+                        });
+                });
+            });
+        });
+    </script>
+{% endblock %}

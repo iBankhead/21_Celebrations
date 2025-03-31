@@ -1,0 +1,64 @@
+<!-- templates/event_planner/create_gift_search.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+
+{% block title %}Create Gift Search{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Create New Gift Search</h2>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <!-- Messages / Errors -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            <!-- Title -->
+            <div class="mb-3">
+                {{ form.title.label_tag }}
+                {{ form.title }}
+                {% for error in form.title.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <!-- Purpose -->
+            <div class="mb-3">
+                {{ form.purpose.label_tag }}
+                {{ form.purpose }}
+                {% for error in form.purpose.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <!-- Donee -->
+            <div class="mb-3">
+                {{ form.donee.label_tag }}
+                {{ form.donee }}
+                {% for error in form.donee.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <!-- Deadline -->
+            <div class="mb-3">
+                {{ form.deadline.label_tag }}
+                {{ form.deadline }}
+                {% for error in form.deadline.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <!-- Button -->
+            <button type="submit" class="btn btn-primary">Create Gift Search</button>
+        </form>
+    </div>
+{% endblock %}
+

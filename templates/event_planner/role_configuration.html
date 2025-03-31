@@ -1,0 +1,189 @@
+<!-- templates/event_planner/role_configuration.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+{% block title %}Role Configuration Settings{% endblock %}
+
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Role Configuration Settings</h2>
+        <p>Set the points for each role. Points must be zero or greater.</p>
+
+        <form method="post" action="{% url 'role_configuration' %}">
+            <!-- Role Configuration -->
+            <h3>Event Roles</h3>
+
+            {% csrf_token %}
+            <div class="row">
+                <!-- Role Organizer -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.organizer_points.label_tag }}
+                        {{ form.organizer_points }}
+                        {% if form.organizer_points.help_text %}
+                            <small class="form-text text-muted">{{ form.organizer_points.help_text }}</small>
+                        {% endif %}
+                        
+                        {% if form.organizer_points.errors %}
+                            <div class="text-danger">
+                                {% for error in form.organizer_points.errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Role Attendee -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.attendee_points.label_tag }}
+                        {{ form.attendee_points }}
+                        {% if form.attendee_points.help_text %}
+                            <small class="form-text text-muted">{{ form.attendee_points.help_text }}</small>
+                        {% endif %}
+
+                        {% if form.attendee_points.errors %}
+                            <div class="text-danger">
+                                {% for error in form.attendee_points.errors %}
+                                {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Role Manager -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.manager_points.label_tag }}
+                        {{ form.manager_points }}
+                        {% if form.manager_points.help_text %}
+                            <small class="form-text text-muted">{{ form.manager_points.help_text }}</small>
+                        {% endif %}
+
+                        {% if form.manager_points.errors %}
+                            <div class="text-danger">
+                                {% for error in form.manager_points.errors %}
+                                {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Role Honouree -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.honouree_points.label_tag }}
+                        {{ form.honouree_points }}
+                        {% if form.honouree_points.help_text %}
+                            <small class="form-text text-muted">{{ form.honouree_points.help_text }}</small>
+                        {% endif %}
+
+                        {% if form.honouree_points.errors %}
+                            <div class="text-danger">
+                                {% for error in form.honouree_points.errors %}
+                                {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <hr>
+
+            <!-- Gift Configuration -->
+            <h3>Gift Roles</h3>
+            <div class="row">
+                <!-- Role Procurer -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.procurer_points.label_tag }}
+                        {{ form.procurer_points }}
+                        {% if form.procurer_points.help_text %}
+                            <small class="form-text text-muted">{{ form.procurer_points.help_text }}</small>
+                        {% endif %}
+
+                        {% if form.procurer_points.errors %}
+                            <div class="text-danger">
+                                {% for error in form.procurer_points.errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Role Proposer -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.proposer_points.label_tag }}
+                        {{ form.proposer_points }}
+                        {% if form.proposer_points.help_text %}
+                            <small class="form-text text-muted">{{ form.proposer_points.help_text }}</small>
+                        {% endif %}
+
+                        {% if form.proposer_points.errors %}
+                            <div class="text-danger">
+                                {% for error in form.proposer_points.errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Role Voter -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.voter_points.label_tag }}
+                        {{ form.voter_points }}
+                        {% if form.voter_points.help_text %}
+                            <small class="form-text text-muted">{{ form.voter_points.help_text }}</small>
+                        {% endif %}
+
+                        {% if form.voter_points.errors %}
+                            <div class="text-danger">
+                                {% for error in form.voter_points.errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Role Winner -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.winner_points.label_tag }}
+                        {{ form.winner_points }}
+                        {% if form.winner_points.help_text %}
+                            <small class="form-text text-muted">{{ form.winner_points.help_text }}</small>
+                        {% endif %}
+
+                        {% if form.winner_points.errors %}
+                            <div class="text-danger">
+                                {% for error in form.winner_points.errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
+    </div>
+{% endblock %}
+
+
+

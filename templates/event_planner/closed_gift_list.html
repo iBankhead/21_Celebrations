@@ -1,0 +1,122 @@
+<!-- templates/event_planner/closed_gift_list.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+{% load math_extras %}
+
+{% block title %}Closed Gift Searches{% endblock %}
+
+<!-- CSS -->
+{% block extra_css %}
+    <style>
+        /* Card styling similar to event list */
+        .card {
+            margin-bottom: 1rem;
+            background-color: var(--creme-white);
+        }
+        .card-title {
+            margin-bottom: 0.5rem;
+        }
+        .card-text {
+            margin-bottom: 0.5rem;
+        }
+        h2 {
+            margin-bottom: 1rem;
+        }
+        a.card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Closed Gift Searches</h2>
+        {% if closed_searches %}
+            <div class="row">
+                {% for item in closed_searches %}
+                    <div class="col-md-4">
+                        <!-- Card which displays winner of voting on click -->
+                        <a href="#" class="card-link" data-bs-toggle="modal" data-bs-target="#proposalModal{{ item.search.id }}">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <!-- Title -->
+                                    <h4 class="card-title" style="color: var(--gold);">{{ item.search.title }}</h4>
+                                    <!-- Deadline -->
+                                    <p class="card-text">
+                                        <strong>Deadline:</strong> {{ item.search.deadline|date:"M d, Y" }}
+                                    </p>
+                                    <!-- Winner of voting (if any) -->
+                                    {% if item.best_proposal %}
+                                        <p class="card-text">
+                                            <strong>Purpose:</strong> {{ item.search.purpose }}<br>
+                                            <strong>Best Proposal:</strong> {{ item.best_proposal.title }}<br>
+                                            <strong>Votes:</strong> {{ item.vote_count }}
+                                        </p>
+                                    {% else %}
+                                        <p class="card-text">No proposals submitted.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    {% if item.best_proposal %}
+                        <!-- Modal for the best proposal details -->
+                        <div class="modal fade" id="proposalModal{{ item.search.id }}" tabindex="-1" aria-labelledby="proposalModalLabel{{ item.search.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <!-- Header -->
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="proposalModalLabel{{ item.search.id }}">{{ item.best_proposal.title }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <!-- Body -->
+                                    <div class="modal-body">
+                                        <!-- Winner Details -->
+                                        <p><strong>Donee:</strong> {{ item.best_proposal.gift_search.donee }}</p>
+                                        <p><strong>Description:</strong> {{ item.best_proposal.description }}</p>
+                                        <p><strong>Proposed by:</strong> {{ item.best_proposal.proposed_by }}</p>
+                                        
+                                        <!-- List of voters -->
+                                        <p><strong>Voters:</strong></p>
+                                        <ul>
+                                            {% if item.sorted_voters %}
+                                                <li>
+                                                    {% for vote in item.sorted_voters %}
+                                                        {{ vote.user_id|username }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </li>
+                                            {% else %}
+                                                <li>No votes yet.</li>
+                                            {% endif %}                          
+                                        </ul>
+
+                                        <!-- Photo -->
+                                        {% if item.best_proposal.photo %}
+                                            <img src="{{ item.best_proposal.photo.url }}" alt="{{ item.best_proposal.title }}" class="img-fluid mb-2">
+                                        {% endif %}
+
+                                        <!-- Link -->
+                                        {% if item.best_proposal.link %}
+                                            <p><a href="{{ item.best_proposal.link }}" target="_blank">View Gift</a></p>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No closed gift searches available.</p>
+        {% endif %}
+    </div>
+{% endblock %}

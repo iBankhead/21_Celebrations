@@ -1,0 +1,315 @@
+<!-- templates/event_planner/job_settings.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+
+{% block title %}Job Settings{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Job Settings</h2>
+        <form method="post" action="{% url 'job_settings' %}">
+            {% csrf_token %}
+
+            <!-- Navigation -->
+            <ul class="nav nav-tabs" id="jobSettingsTab" role="tablist">
+                <!-- Events -->
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="event-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab" aria-controls="events" aria-selected="true">
+                        <h5>Events</h5>
+                    </button>
+                </li>
+
+                <!-- Gifts -->
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="gift-tab" data-bs-toggle="tab" data-bs-target="#gifts" type="button" role="tab" aria-controls="gifts" aria-selected="false">
+                        <h5>Gifts</h5>
+                    </button>
+                </li>
+
+                <!-- Paymenst -->
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payments" type="button" role="tab" aria-controls="payments" aria-selected="false">
+                        <h5>Payments</h5>
+                    </button>
+                </li>
+
+                <!-- Scores -->
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="score-tab" data-bs-toggle="tab" data-bs-target="#scores" type="button" role="tab" aria-controls="scores" aria-selected="false">
+                        <h5>Scores</h5>
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tabs -->
+            <div class="tab-content" id="jobSettingsTabContent">
+                <!-- Events -->
+                <div class="tab-pane fade show active" id="events" role="tabpanel" aria-labelledby="event-tab">
+                    <br/>
+                    <!-- Update Event Status -->
+                    <div class="mb-3">
+                        <h4>Update Event Status</h4>
+                        <p>{{ job_config.update_event_status.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="update_event_enabled" name="update_event_enabled" {% if job_config.update_event_status.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="update_event_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="update_event_interval" class="form-label">Interval (hours, between {{ job_config.update_event_status.min }} and {{ job_config.update_event_status.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="update_event_interval" name="update_event_interval" min="{{ job_config.update_event_status.min }}" max="{{ job_config.update_event_status.max }}" value="{{ job_config.update_event_status.interval }}">
+                        </div>
+                    </div>
+
+                    <!-- Check Overdue Tasks Settings -->
+                    <div class="mb-3">
+                        <h4>Check Overdue Tasks</h4>
+                        <p>{{ job_config.check_overdue_tasks.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="check_overdue_enabled" name="check_overdue_enabled" {% if job_config.check_overdue_tasks.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="check_overdue_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="check_overdue_interval" class="form-label">Interval (minutes, between {{ job_config.check_overdue_tasks.min }} and {{ job_config.check_overdue_tasks.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="check_overdue_interval" name="check_overdue_interval" min="{{ job_config.check_overdue_tasks.min }}" max="{{ job_config.check_overdue_tasks.max }}" value="{{ job_config.check_overdue_tasks.interval }}">
+                        </div>
+                    </div>
+                    <hr>
+                    
+                    <!-- Send Task Reminder Email Settings -->
+                    <div class="mb-3">
+                        <h4>Send Reminder Email</h4>
+                        <p>{{ job_config.send_reminder_email.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="send_reminder_enabled" name="send_reminder_enabled" {% if job_config.send_reminder_email.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="send_reminder_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="send_reminder_interval" class="form-label">Interval (hours, between {{ job_config.send_reminder_email.min }} and {{ job_config.send_reminder_email.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="send_reminder_interval" name="send_reminder_interval" min="{{ job_config.send_reminder_email.min }}" max="{{ job_config.send_reminder_email.max }}" value="{{ job_config.send_reminder_email.interval }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="send_reminder_lead_time" class="form-label">Reminder Lead Time (hours before due):</label>
+                            <input type="number" class="form-control small-integer-input" id="send_reminder_lead_time" name="send_reminder_lead_time" value="{{ job_config.send_reminder_email.lead_time }}">
+                        </div>
+                    </div>
+                    <hr>
+                
+                    <!-- Send Event Invitation Email Settings -->
+                    <div class="mb-3">
+                        <h4>Send Event Invitation Email</h4>
+                        <p>{{ job_config.send_invitation_email.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="send_invitation_enabled" name="send_invitation_enabled" {% if job_config.send_invitation_email.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="send_invitation_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="send_invitation_interval" class="form-label">Interval (hours, between {{ job_config.send_invitation_email.min }} and {{ job_config.send_invitation_email.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="send_invitation_interval" name="send_invitation_interval" min="{{ job_config.send_invitation_email.min }}" max="{{ job_config.send_invitation_email.max }}" value="{{ job_config.send_invitation_email.interval }}">
+                        </div>
+                    </div>
+                    <hr>
+
+                    <!-- Create Birthday Event Settings -->
+                    <div class="mb-3">
+                        <h4>Create Birthday Event</h4>
+                        <p>{{ job_config.create_birthday_event.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="create_birthday_enabled" name="create_birthday_enabled" {% if job_config.create_birthday_event.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="create_birthday_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="create_birthday_interval" class="form-label">Interval (hours, between {{ job_config.create_birthday_event.min }} and {{ job_config.create_birthday_event.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="create_birthday_interval" name="create_birthday_interval" min="{{ job_config.create_birthday_event.min }}" max="{{ job_config.create_birthday_event.max }}" value="{{ job_config.create_birthday_event.interval }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="create_birthday_offset" class="form-label">Interval (days, between 0 and 60):</label>
+                            <input type="number" class="form-control small-integer-input" id="create_birthday_offset" name="create_birthday_offset" min=0 max=60 value="{{ job_config.create_birthday_event.future_search_offset }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="create_birthday_min_users" class="form-label">Minimum (honorees, between 1 and 5):</label>
+                            <input type="number" class="form-control small-integer-input" id="create_birthday_min_users" name="create_birthday_min_users" min=1 max=5 value="{{ job_config.create_birthday_event.min_users_required }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="create_birthday_max_users" class="form-label">Maximum (honorees, between 6 and 15):</label>
+                            <input type="number" class="form-control small-integer-input" id="create_birthday_max_users" name="create_birthday_max_users" min=6 max=15 value="{{ job_config.create_birthday_event.max_users_allowed }}">
+                        </div>
+                    </div>
+                    <hr>
+
+                </div>
+
+                <!-- Gifts -->
+                <div class="tab-pane fade" id="gifts" role="tabpanel" aria-labelledby="gift-tab">
+                    <br/>
+                    <!-- Update Contribution Status -->
+                    <div class="mb-3">
+                        <h4>Update Contribution Status</h4>
+                        <p>{{ job_config.update_contribution_status.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="update_contribution_enabled" name="update_contribution_enabled" {% if job_config.update_contribution_status.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="update_contribution_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="update_contribution_interval" class="form-label">Interval (hours, between {{ job_config.update_contribution_status.min }} and {{ job_config.update_contribution_status.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="update_contribution_interval" name="update_contribution_interval" min="{{ job_config.update_contribution_status.min }}" max="{{ job_config.update_contribution_status.max }}" value="{{ job_config.update_contribution_status.interval }}">
+                        </div>
+                    </div>
+
+                    <!-- Send Gift Contribution Invitation Email Settings -->
+                    <div class="mb-3">
+                        <h4>Send Gift Contribution Invitation Email</h4>
+                        <p>{{ job_config.send_gift_contribution_invitation.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="send_gift_contribution_invitation_enabled" name="send_gift_contribution_invitation_enabled" {% if job_config.send_gift_contribution_invitation.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="send_gift_contribution_invitation_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="send_gift_contribution_invitation_interval" class="form-label">Interval (hours, between {{ job_config.send_gift_contribution_invitation.min }} and {{ job_config.send_gift_contribution_invitation.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="send_gift_contribution_invitation_interval" name="send_gift_contribution_invitation_interval" min="{{ job_config.send_gift_contribution_invitation.min }}" max="{{ job_config.send_gift_contribution_invitation.max }}" value="{{ job_config.send_gift_contribution_invitation.interval }}">
+                        </div>
+                    </div>
+                    <hr>
+
+                    <!-- Send Gift Search Invitation Email Settings -->
+                    <div class="mb-3">
+                        <h4>Send Gift Search Invitation Email</h4>
+                        <p>{{ job_config.send_gift_search_invitation.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="send_gift_search_invitation_enabled" name="send_gift_search_invitation_enabled" {% if job_config.send_gift_search_invitation.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="send_gift_search_invitation_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="send_gift_search_invitation_interval" class="form-label">Interval (hours, between {{ job_config.send_gift_search_invitation.min }} and {{ job_config.send_gift_search_invitation.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="send_gift_search_invitation_interval" name="send_gift_search_invitation_interval" min="{{ job_config.send_gift_search_invitation.min }}" max="{{ job_config.send_gift_search_invitation.max }}" value="{{ job_config.send_gift_search_invitation.interval }}">
+                        </div>
+                    </div>
+                    <hr>
+                
+                    <!-- Send Gift Contribution Reminder Email Settings -->
+                    <div class="mb-3">
+                        <h4>Send Gift Contribution Reminder Email</h4>
+                        <p>{{ job_config.gift_contribution_reminder.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="gift_contribution_reminder_enabled" name="gift_contribution_reminder_enabled" {% if job_config.gift_contribution_reminder.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="gift_contribution_reminder_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gift_contribution_reminder_interval" class="form-label">Interval (hours, between {{ job_config.gift_contribution_reminder.min }} and {{ job_config.gift_contribution_reminder.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="gift_contribution_reminder_interval" name="gift_contribution_reminder_interval" min="{{ job_config.gift_contribution_reminder.min }}" max="{{ job_config.gift_contribution_reminder.max }}" value="{{ job_config.gift_contribution_reminder.interval }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="gift_contribution_reminder_lead_time" class="form-label">Reminder Lead Time (hours before due):</label>
+                            <input type="number" class="form-control small-integer-input" id="gift_contribution_reminder_lead_time" name="gift_contribution_reminder_lead_time" value="{{ job_config.gift_contribution_reminder.lead_time }}">
+                        </div>
+                    </div>
+                    <hr>
+
+                    <!-- Send Gift Search Reminder Email Settings -->
+                    <div class="mb-3">
+                        <h4>Send Gift Search Reminder Email</h4>
+                        <p>{{ job_config.gift_search_reminder.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="gift_search_reminder_enabled" name="gift_search_reminder_enabled" {% if job_config.gift_search_reminder.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="gift_search_reminder_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gift_search_reminder_interval" class="form-label">Interval (hours, between {{ job_config.gift_search_reminder.min }} and {{ job_config.gift_search_reminder.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="gift_search_reminder_interval" name="gift_search_reminder_interval" min="{{ job_config.gift_search_reminder.min }}" max="{{ job_config.gift_search_reminder.max }}" value="{{ job_config.gift_search_reminder.interval }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="gift_search_reminder_lead_time" class="form-label">Reminder Lead Time (hours before due):</label>
+                            <input type="number" class="form-control small-integer-input" id="gift_search_reminder_lead_time" name="gift_search_reminder_lead_time" value="{{ job_config.gift_search_reminder.lead_time }}">
+                        </div>
+                    </div>
+                    <hr>
+                
+                    <!-- Send Gift Results Email Settings -->
+                    <div class="mb-3">
+                        <h4>Gift Results Email</h4>
+                        <p>{{ job_config.gift_search_results.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="gift_search_enabled" name="gift_search_enabled" {% if job_config.gift_search_results.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="gift_search_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gift_search_interval" class="form-label">Interval (hours, between {{ job_config.gift_search_results.min }} and {{ job_config.gift_search_results.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="gift_search_interval" name="gift_search_interval" min="{{ job_config.gift_search_results.min }}" max="{{ job_config.gift_search_results.max }}" value="{{ job_config.gift_search_results.interval }}">
+                        </div>
+                    </div>
+                    <hr>                    
+
+                    <!-- Create Round Birthday Gift Search Settings -->
+                    <div class="mb-3">
+                        <h4>Create Gift Search for Rounf Birthday</h4>
+                        <p>{{ job_config.create_round_birthday_gift_search.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="create_round_birthday_enabled" name="create_round_birthday_enabled" {% if job_config.create_round_birthday_gift_search.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="create_round_birthday_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="create_round_birthday_interval" class="form-label">Interval (hours, between {{ job_config.create_round_birthday_gift_search.min }} and {{ job_config.create_round_birthday_gift_search.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="create_round_birthday_interval" name="create_round_birthday_interval" min="{{ job_config.create_round_birthday_gift_search.min }}" max="{{ job_config.create_round_birthday_gift_search.max }}" value="{{ job_config.create_round_birthday_gift_search.interval }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="create_round_birthday_offset" class="form-label">Offset (days, between 0 and 60):</label>
+                            <input type="number" class="form-control small-integer-input" id="create_round_birthday_offset" name="create_round_birthday_offset" min=0 max=60 value="{{ job_config.create_round_birthday_gift_search.future_search_offset }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="create_round_birthday_deadline" class="form-label">Deadline (days, between 1 and 20):</label>
+                            <input type="number" class="form-control small-integer-input" id="create_round_birthday_deadline" name="create_round_birthday_deadline" min=1 max=20 value="{{ job_config.create_round_birthday_gift_search.deadline }}">
+                        </div>
+                     </div>
+                    <hr>
+
+                </div>
+
+                <!-- Payments -->
+                <div class="tab-pane fade" id="payments" role="tabpanel" aria-labelledby="payment-tab">
+                    <br/>
+                    <!-- Check Overdue Payments Settings -->
+                    <div class="mb-3">
+                        <h4>Send Payment Reminder Email</h4>
+                        <p>{{ job_config.check_payment_reminder.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="check_payment_enabled" name="check_payment_enabled" {% if job_config.check_payment_reminder.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="check_payment_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="check_payment_interval" class="form-label">Interval (days, between {{ job_config.check_payment_reminder.min }} and {{ job_config.check_payment_reminder.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="check_payment_interval" name="check_payment_interval" min="{{ job_config.check_payment_reminder.min }}" max="{{ job_config.check_payment_reminder.max }}" value="{{ job_config.check_payment_reminder.interval }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="check_payment_threshold" class="form-label">Reminder Threshold Time (days after billing):</label>
+                            <input type="number" class="form-control small-integer-input" id="check_payment_threshold" name="check_payment_threshold" value="{{ job_config.check_payment_reminder.overdue_threshold }}">
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+
+                <!-- Scores -->
+                <div class="tab-pane fade" id="scores" role="tabpanel" aria-labelledby="score-tab">
+                    <br/>
+                    <!-- Store User Scores Settings -->
+                    <div class="mb-3">
+                        <h4>Store User Scores</h4>
+                        <p>{{ job_config.store_user_scores.description }}</p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="store_scores_enabled" name="store_scores_enabled" {% if job_config.store_user_scores.enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="store_scores_enabled">Enable this job</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="store_scores_interval" class="form-label">Interval (hours, between {{ job_config.store_user_scores.min }} and {{ job_config.store_user_scores.max }}):</label>
+                            <input type="number" class="form-control small-integer-input" id="store_scores_interval" name="store_scores_interval" min="{{ job_config.store_user_scores.min }}" max="{{ job_config.store_user_scores.max }}" value="{{ job_config.store_user_scores.interval }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Button -->
+            <button type="submit" class="btn btn-primary mt-3">Save Settings</button>
+        </form>
+    </div>
+{% endblock %}
+

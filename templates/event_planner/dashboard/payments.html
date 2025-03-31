@@ -1,0 +1,100 @@
+<!-- templates/event_planner/dashboard/payments.html -->
+
+<!-- CSS -->
+<style>
+    .card {
+        margin-bottom: 1rem;
+        background-color: var(--creme-white);
+    }
+    .card-title {
+        margin-bottom: 0.5rem;
+    }
+    .card-text {
+        margin-bottom: 0.5rem;
+    }
+    h2 {
+        margin-bottom: 1rem;
+    }
+    /* Scrollable table area */
+    .scrollable {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+</style>
+
+
+<div class="dashboard-section payments" id="payments-scroll" style="overflow-y: auto;">
+    <h5 class="mb-2">Payment History</h5>
+    
+    <!-- Card for payments-->
+    <div class="card">
+        <div class="card-body">
+            <div style="max-height: 300px; overflow-y: auto;">
+                <ul class="list-group">
+                    <!-- Total Sum of payments (paid or received) without tasks -->
+                    <p>
+                        <strong>Total Sum:</strong>
+                        <!-- Format output -->
+                        {% if total_sum < 0 %}
+                            <span class="text-danger">{{ total_sum|floatformat:2 }}</span>
+                        {% elif total_sum > 0 %}
+                            <span class="text-success">{{ total_sum|floatformat:2 }}</span>
+                        {% else %}
+                            Balanced
+                        {% endif %}
+                    </p>
+
+                    <!-- List payments in table -->
+                    <div class="card">
+                        <div class="card-body scrollable">
+                            <!-- Display payments in table -->
+                            <table class="table table-striped">
+                                <!-- Table header -->
+                                <thead>
+                                    <tr>
+                                        <th>From</th>
+                                        <th>To</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+
+                                <!-- Table body -->
+                                <tbody>
+                                    {% for transaction in transactions %}
+                                        <tr>
+                                            <td>{{ transaction.from_user }}</td>
+                                            <td>{{ transaction.to_user }}</td>
+                                            <td>{{ transaction.amount|floatformat:2 }}</td>
+                                            <td>{{ transaction.get_status_display }}</td>
+
+                                            <!-- Buttons -->
+                                            <td>
+                                                {% if transaction.from_user == request.user.userprofile and transaction.status == "billed" %}
+                                                    <!-- Button 'Paid' if from_user has not payed yet -->
+                                                    <form method="post" action="{% url 'update_payment' transaction.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-primary">Paid</button>
+                                                    </form>
+                                                {% elif transaction.to_user == request.user.userprofile and transaction.status == "paid" %}
+                                                    <!-- Button 'Confirmed' if to_user has received the payment -->
+                                                    <form method="post" action="{% url 'update_payment' transaction.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-primary">Confirmed</button>
+                                                    </form>
+                                                {% else %}
+                                                    <!-- No button if status is confirmed or user not allowed to update -->
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,20 @@
+<!-- templates/event_planner/general_settings_success.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+{% block title %}Settings Saved{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Settings Saved</h2>
+        <p>Your general settings have been updated successfully.</p>
+    </div>
+
+    <script>
+        // Call parent window to close modal
+        window.parent.closeGeneralSettingsModal();
+        // Reload page
+        window.parent.location.reload();
+    </script>
+{% endblock %}

@@ -1,0 +1,91 @@
+<!-- templates/event_planner/create_gift_contribution.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+
+{% block title %}Create Gift Contribution{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Create New Gift Contribution</h2>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+             <!-- Messages / Errors -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            <!-- Title -->
+            <div class="mb-3">
+                {{ form.title.label_tag }}
+                {{ form.title }}
+                {% for error in form.title.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+                {{ form.description.label_tag }}
+                {{ form.description }}
+                {% for error in form.description.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Donee -->
+            <div class="mb-3">
+                {{ form.donee.label_tag }}
+                {{ form.donee }}
+                {% for error in form.donee.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Deadline -->
+            <div class="mb-3">
+                {{ form.deadline.label_tag }}
+                {{ form.deadline }}
+                {% for error in form.deadline.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Collection Target -->
+            <div class="mb-3">
+                {{ form.collection_target.label_tag }}
+                {{ form.collection_target }}
+                {% for error in form.collection_target.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Status -->
+            <div class="mb-3">
+                {{ form.status.label_tag }}
+                {{ form.status }}
+                {% for error in form.status.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Gift search creation -->
+            <div class="mb-3 form-check">
+                {{ form.create_gift_search }}
+                {{ form.create_gift_search.label_tag }}
+            </div>
+
+            <!-- Button -->
+            <button type="submit" class="btn btn-primary">Create Gift Contribution</button>
+        </form>
+    </div>
+{% endblock %}
+
+
+
+

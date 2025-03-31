@@ -1,0 +1,81 @@
+<!-- templates/event_planner/create_event.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+
+{% block title %}Create Event{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Create New Event</h2>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <!-- Messages / Errors -->
+            {# Display any non-field errors #}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            <!-- Event Title -->
+            <div class="mb-3">
+                {{ form.title.label_tag }}
+                {{ form.title }}
+                {% for error in form.title.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <!-- Event Description -->
+            <div class="mb-3">
+                {{ form.description.label_tag }}
+                {{ form.description }}
+                {% for error in form.description.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <!-- Event Type -->
+            <div class="mb-3">
+                {{ form.event_type.label_tag }}
+                {{ form.event_type }}
+                {% for error in form.event_type.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <!-- Event Date -->
+            <div class="mb-3">
+                {{ form.date.label_tag }}
+                {{ form.date }}
+                {% for error in form.date.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <!-- Event Time -->
+            <div class="mb-3">
+                {{ form.time.label_tag }}
+                {{ form.time }}
+                {% for error in form.time.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <!-- Event Location -->
+            <div class="mb-3">
+                {{ form.location.label_tag }}
+                {{ form.location }}
+                {% for error in form.location.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <!-- Buttons -->
+            <button type="submit" class="btn btn-primary">Create Event</button>
+        </form>
+    </div>
+{% endblock %}

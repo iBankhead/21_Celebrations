@@ -1,0 +1,219 @@
+<!-- templates/event_planner/gift_contribution_list.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+
+
+{% block title %}My Gift Contributions{% endblock %}
+
+<!-- CSS -->
+{% block extra_css %}
+    <style>
+        /* Reduce spacing between event cards and text */
+        .card {
+            margin-bottom: 1rem; 
+            background-color: var(--creme-white);
+        }
+        .card-title {
+            margin-bottom: 0.5rem; 
+        }
+        .card-text {
+            margin-bottom: 0.5rem; 
+        }
+        h2 {
+            margin-bottom: 1rem; 
+        }
+        /* Remove default link styles while preserving card appearance */
+        a.card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h2>Running Gift Contributions</h2>
+
+    {% if contributions %}
+        <div class="row">
+            {% for gift in contributions %}
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#giftDetailModal{{ gift.id }}">
+                            <!-- Contribution Card -->
+                            <div class="card-body">
+                                <h4 class="card-title" style="color: var(--gold);">{{ gift.title }}</h4>
+                                <p class="card-text" style="color: var(--deep-navy);">{{ gift.description|truncatewords:20 }}</p>
+                                <p class="card-text"><small class="text-muted">Deadline: {{ gift.deadline|date:"M d, Y" }}</small></p>
+                                <p class="card-text"><small class="text-muted">Target: €{{ gift.collection_target }}</small></p>
+
+                                <!-- Progress Bar -->
+                                {% if gift.collection_target %}
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar" role="progressbar" style="width: {{ gift.progress }};" aria-valuenow="{{ gift.progress|floatformat:'0' }}" aria-valuemin="0" aria-valuemax="100">
+                                            {{ gift.progress|floatformat:0 }}%
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Donation Status -->
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        Raised: €{{ gift.total_contributions }} 
+                                        ({{ gift.contribution_count }} contributors)
+                                    </small>
+                                </p>
+                            </div>
+                        </a>
+
+                        <!-- Buttons -->
+                        <div class="card-footer">
+                            <!-- Contribute or Modify Contribution -->
+                            {% if gift.deadline > today %}
+                                <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#contributionModal{{ gift.id }}">
+                                    {% if gift.user_contributed %}Modify{% else %}Contribute{% endif %}
+                                </a>
+                            {% endif %}
+
+                            <!-- Redirect to gift proposal page (when gift search connected) -->
+                            {% if gift.gift_search %}
+                                <a class="btn btn-primary" href="{% url 'gift_search_detail' gift.gift_search.id %}">
+                                    Vote on Proposal
+                                </a>
+                            {% endif %}
+
+                            <!-- Contributor List (only manager) -->
+                            {% if request.user.userprofile == gift.manager %}
+                                <!-- Update -->
+                                <a class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#updateModal{{ gift.id }}">
+                                    Update
+                                </a>
+                                <!-- List Transactions -->
+                                <a class="btn btn-secondary" href="{% url 'list_gift_contributions' gift.id %}">Contributors</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal for contribution form -->
+                <div class="modal fade" id="contributionModal{{ gift.id }}" tabindex="-1" aria-labelledby="contributionModalLabel{{ gift.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <!-- Header -->
+                        <div class="modal-header">
+                            <h5 class="modal-title">Contribute</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <!-- Body -->
+                        <div class="modal-content">
+                            <iframe src="{% url 'contribute_to_gift' gift.id %}" style="width: 100%; height: 350px; border: none;"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal for gift contribution details -->
+                <div class="modal fade" id="giftDetailModal{{ gift.id }}" tabindex="-1" aria-labelledby="giftDetailModalLabel{{ gift.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <!-- Header -->
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="giftDetailModalLabel{{ gift.id }}">{{ gift.title }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <!-- Body -->
+                            <div class="modal-body">
+                                <p><strong>Description:</strong> {{ gift.description }}</p>
+                                <p><strong>Donee:</strong> {{ gift.donee }}</p>
+                                <p><strong>Manager:</strong> {{ gift.manager }}</p>
+                                <p><strong>Deadline:</strong> {{ gift.deadline|date:"M d, Y" }}</p>
+                                <p><strong>Collection Target:</strong> {{ gift.collection_target }}</p>
+                                <p><strong>Status:</strong> {{ gift.status }}</p>
+                                <p><strong>Total Contributions:</strong> {{ gift.total_contributions }}</p>
+                                <p><strong>Contributors:</strong> {{ gift.contribution_count }}</p>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal for updating gift contribution -->
+                <div class="modal fade" id="updateModal{{ gift.id }}" tabindex="-1" aria-labelledby="updateModalLabel{{ gift.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <!-- Header -->
+                        <div class="modal-header">
+                            <h5 class="modal-title">Update</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="modal-content">
+                            <!-- Load update view in an iframe -->
+                            <iframe src="{% url 'update_gift_contribution' %}?gift_contribution_id={{ gift.id }}" style="width:100%; height:450px; border:none;"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No running gift contributions at the moment.</p>
+    {% endif %}
+{% endblock %}
+
+
+{% block extra_js %}
+    <script>
+        window.addEventListener('message', function(event) {
+            if (event.data && (event.data.action === 'contributionSuccess' || event.data.action === 'updateSuccess')) {
+                // Locate the modal in the parent document
+                var modalEl = document.getElementById(event.data.modalId);
+                if (modalEl) {
+                    var modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if(modalInstance){
+                        modalInstance.hide();
+                    } else {
+                        modalInstance = new bootstrap.Modal(modalEl);
+                        modalInstance.hide();
+                    }
+                }
+                // Reload the page with the fireworks flag (remove existing query params if needed)
+                var currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('fireworks', '1');
+                window.location.href = currentUrl.toString();
+            }
+        });
+    </script>
+
+    {% if request.GET.fireworks %}
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var duration = 5000;
+                var end = Date.now() + duration;
+                (function frame() {
+                    confetti({
+                        particleCount: 3,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 }
+                    });
+                    confetti({
+                        particleCount: 3,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 }
+                    });
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            });
+        </script>
+    {% endif %}
+{% endblock %}
+
+

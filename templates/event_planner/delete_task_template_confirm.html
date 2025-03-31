@@ -1,0 +1,55 @@
+<!-- templates/event_planner/delete_task_template_confirm.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+
+{% block title %}Delete Task Template{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Delete Task Template: {{ template.title }}</h2>
+        <p>Are you sure you want to delete this template?</p>
+
+        <form method="post" id="delete-task-template-form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete Template</button>
+            <a href="#" class="btn btn-secondary" onclick="window.close(); return false;">Cancel</a>
+        </form>
+    </div>
+
+    <script>
+        // Find template and delete
+        document.addEventListener("DOMContentLoaded", function(){
+            var form = document.getElementById("delete-task-template-form");
+            form.addEventListener("submit", function(e){
+                e.preventDefault();
+                var formData = new FormData(form);
+                // Note: URL includes any GET parameters
+                fetch("{% url 'delete_task_template' template.id %}", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert("Template deleted successfully!");
+                        window.opener.location.reload();
+                        window.close();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+            });
+        });
+    </script>
+{% endblock %}

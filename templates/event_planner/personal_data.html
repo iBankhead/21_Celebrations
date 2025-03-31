@@ -1,0 +1,92 @@
+<!-- templates/event_planner/personal_data.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+
+
+{% block title %}Personal Data{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2 class="mb-4">Personal Data</h2>
+        <form method="post">
+            
+            <!-- Messages / Errors -->
+            {# Display any non-field errors #}
+            {% if user_form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ user_form.non_field_errors }}
+                </div>
+            {% endif %}            
+            {% if profile_form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ profile_form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% csrf_token %}
+            <!-- Username -->
+            <div class="mb-3">
+                {{ user_form.username.label_tag }}
+                {{ user_form.username }}
+            </div>
+
+            <!-- Is Active -->
+            <div class="mb-3">
+                {{ profile_form.is_inactive.label_tag }}
+                {{ profile_form.is_inactive }}
+            </div>
+
+            <!-- Birthday -->
+            <div class="mb-3">
+                {{ profile_form.birthday.label_tag }}
+                <div class="d-flex align-items-center">
+                    {{ profile_form.birthday }}
+                    <a class="btn btn-secondary ms-2" href="{% url 'create_event' %}?event_type=birthday">
+                        Create Birthday Event
+                    </a>
+                </div>
+            </div>
+
+            <!-- Onboarding -->
+            <div class="mb-3">
+                {{ profile_form.onboarding.label_tag }}
+                <div class="d-flex align-items-center">
+                    {{ profile_form.onboarding }}
+                    <a class="btn btn-secondary ms-2" href="{% url 'create_event' %}?event_type=onboarding">
+                        Create Onboarding Event
+                    </a>
+                </div>
+            </div>
+
+            <!-- Farewell -->
+            <div class="mb-3">
+                {{ profile_form.farewell.label_tag }}
+                <div class="d-flex align-items-center">
+                    {{ profile_form.farewell }}
+                    <a class="btn btn-secondary ms-2" href="{% url 'create_event' %}?event_type=farewell">
+                        Create Farewell Event
+                    </a>
+                </div>
+            </div>
+
+            <!-- Wedding -->
+            <div class="mb-3">
+                {{ profile_form.wedding.label_tag }}
+                <div class="d-flex align-items-center">
+                    {{ profile_form.wedding }}
+                    <a class="btn btn-secondary ms-2" href="{% url 'create_event' %}?event_type=wedding">
+                        Create Wedding Event
+                    </a>
+                </div>
+            </div>
+
+            <!-- About Me -->
+            <div class="mb-3">
+                {{ profile_form.about_me.label_tag }}
+                {{ profile_form.about_me }}
+            </div>
+            <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
+    </div>
+{% endblock %}

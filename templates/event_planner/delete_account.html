@@ -1,0 +1,20 @@
+<!-- templates/event_planner/delete_account.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+
+
+{% block title %}Settings Saved{% endblock %}
+
+{% block content %}
+    <h2>Confirm Account Deletion</h2>
+    <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <!-- Include active URL as hidden field -->
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" name="confirm" value="yes">Yes, delete my account</button>
+        <button type="submit" name="confirm" value="no">No, keep my account</button>
+    </form>
+{% endblock %}

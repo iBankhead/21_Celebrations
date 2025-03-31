@@ -1,0 +1,59 @@
+<!-- templates/event_planner/gift_contribution_detail.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+
+
+{% block title %}Gift Contribution Detail{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>{{ gift_contribution.title }}</h2>
+        <p><strong>Description:</strong> {{ gift_contribution.description }}</p>
+        <p><strong>Donee:</strong> {{ gift_contribution.donee }}</p>
+        <p><strong>Manager:</strong> {{ gift_contribution.manager }}</p>
+        <p><strong>Deadline:</strong> {{ gift_contribution.deadline|date:"M d, Y" }}</p>
+        <p><strong>Target:</strong> {{ gift_contribution.collection_target }}</p>
+        <p><strong>Status:</strong> {{ gift_contribution.status }}</p>
+        <p><strong>Total Contributions:</strong> {{ total_amount }}</p>
+        <p><strong>Contributors:</strong> {{ num_contributors }}</p>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    {% if request.GET.fireworks %}
+        <!-- Link to firework source -->
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+        
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // Run fireworks for 5 seconds
+                var duration = 5 * 1000;
+                var end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({
+                        particleCount: 3,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 }
+                    });
+                    confetti({
+                        particleCount: 3,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 }
+                    });
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            });
+        </script>
+    {% endif %}
+{% endblock %}
+
+
+
+
+

@@ -1,0 +1,174 @@
+<!-- templates/event_planner/clearing_results.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+{% load math_extras %}
+
+
+{% block title %}Cost Division Results for {{ event.title }}{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <!-- Displays results of cost division -->
+        <h2>Cost Division Results for {{ event.title }}</h2>
+        <p><strong>Total Actual Expenses:</strong> {{ total_actual }}</p>
+        <p><strong>Number of Selected Honorees:</strong> {{ selected_honorees|length }}</p>
+        <p><strong>Share per Honoree:</strong> {{ share|floatformat:2 }}</p>
+        
+        <!-- Honoree Table -->
+        <table class="table table-bordered">
+            <!-- Table Header -->
+            <thead>
+                <tr>
+                    <th>Honoree</th>
+                    <th>Total Paid</th>
+                    <th>Share</th>
+                    <th>Net Amount</th>
+                </tr>
+            </thead>
+
+            <!-- Table Body -->
+            <tbody>
+                {% for hid, net in division_results.items %}
+                    <tr>
+                        <!-- Honoree -->
+                        <td>
+                            {% for hon in event.honourees.all %}
+                                {% if hon.user_profile.id == hid %}
+                                    {{hon.user_profile}}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <!-- Paid in tasks -->
+                        <td>{{ paid_by|dict_get:hid|default:"0" }}</td>
+                        <!-- Share of total cost -->
+                        <td>{{ share|floatformat:2 }}</td>
+                        <!-- Net Amount -->
+                        <td>
+                            {% if net > 0 %}
+                                <span class="text-success">Receives: {{ net|floatformat:2 }}</span>
+                            {% elif net < 0 %}
+                                <span class="text-danger">Owes: {{ net|floatformat:2|abs }}</span>
+                            {% else %}
+                                Balanced
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Table Footer -->
+        <table class="table table-bordered">
+            <tfoot>
+                <tr>
+                    <td style="text-align: right !important;">
+                        <strong>Total Open:
+                            {% if total_net > 0 %}
+                                <span class="text-success"> {{ total_net|floatformat:2 }}</span>
+                            {% elif total_net < 0 %}
+                                <span class="text-danger"> {{ total_net|floatformat:2|abs }}</span>
+                            {% else %}
+                                Balanced
+                            {% endif %}
+                        </strong>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- Transaction Table -->
+        <h4>Transactions</h4>
+        {% if transactions %}
+            <table class="table table-bordered">
+                <!-- Table Header -->
+                <thead>
+                    <tr>
+                        <th>Payer</th>
+                        <th>Receiver</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+
+                <!-- Table Body -->
+                <tbody>
+                    {% for trans in transactions %}
+                        <tr>
+                            <!-- Payer -->
+                            <td>
+                                {% for hon in selected_profiles %}
+                                {% if hon.id == trans.from %}
+                                    {{ hon }}
+                                {% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Receiver -->
+                            <td>
+                                {% for hon in selected_payers %}
+                                {% if hon.id == trans.to %}
+                                    {{ hon }}
+                                {% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Amount -->
+                            <td>{{ trans.amount|floatformat:2 }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        
+            <!-- Transaction totals -->
+            {% if transactions %}
+                <table class="table table-bordered">
+                    <!-- Transaction Footer -->
+                    <tfoot>
+                        <tr>
+                            <td style="text-align: right !important;">
+                                <strong>Total Transactions:
+                                    {% if total_net < 0 %}
+                                        <span class="text-success"> {{ total_trans|floatformat:2 }}</span>
+                                    {% elif total_net > 0 %}
+                                        <span class="text-danger"> {{ total_trans|floatformat:2 }}</span>
+                                    {% else %}
+                                        Balanced
+                                    {% endif %}
+                                </strong>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            {% endif %}
+        {% else %}
+            <p>No transactions necessary; the costs are balanced.</p>
+        {% endif %}
+        
+        <!-- Note -->
+        <p><strong>Note:</strong> The sum of all net amounts should be close to zero.</p>
+        <hr>
+
+        {% if event.status in 'active, completed' %}
+            <!-- Transaction Table -->
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'clearing_view' event.id %}" class="btn btn-secondary">Back</a>
+
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <!-- Hidden fields -->
+                    <input type="hidden" name="action" value="bill_transactions">
+                    <input type="hidden" name="payer_data" value='{{ payer_dict_json|escapejs }}'>
+                    <input type="hidden" name="honoree_data" value='{{ honoree_ids_json|escapejs }}'>
+
+                    <!-- Buttons -->
+                    <button type="submit" class="btn btn-primary">Bill Transactions</button>
+                    <div class="form-check form-check-inline ms-2">
+                        <input class="form-check-input" type="checkbox" name="send_mail" id="send_mail" value="1" checked>
+                        <label class="form-check-label" for="send_mail">Send Mail</label>
+                    </div>
+                </form>
+
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+

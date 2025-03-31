@@ -1,0 +1,139 @@
+<!-- templates/event_planner/gift_search_detail.html -->
+
+{% extends "master/base.html" %}
+{% load static %}
+
+
+{% block title %}Gift Proposals{% endblock %}
+
+<!-- CSS -->
+{% block extra_css %}
+    <style>
+        .proposal-image {
+            width: 100%;
+            max-height: 200px; 
+            object-fit: contain;
+        }
+        .link-preview-container {
+            position: relative;
+            width: 100%;
+            max-height: 200px;
+            border: 1px solid #ccc;
+            overflow: hidden;
+            background: #fff;
+        }
+        .link-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+        }
+        .open-gift-button {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        {% if gift_search.donee != request.user.userprofile %}
+            <h2>Gift Search: {{ gift_search.title }}</h2>
+            <p>
+                <strong>Purpose:</strong> {{ gift_search.purpose }}<br>
+                <strong>For:</strong> {{ gift_search.donee }}<br>
+                <strong>Deadline:</strong> {{ gift_search.deadline|date:"M d, Y" }}
+            </p>
+            <hr>
+
+            <!-- Button to open modal for proposing gift (only shown if user is not donee) -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#proposalModal">
+                Propose Gift
+            </button>
+            <hr>
+
+            <h4>Gift Proposals</h4>
+            <div class="row">
+                {% for proposal in proposals %}
+                    <!-- List all proposals -->
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h4 class="card-title" style="color: var(--gold);">{{ proposal.title }}</h4>
+                                <p class="card-text">{{ proposal.description|truncatewords:20 }}</p>
+
+                                <!-- Photo/Link -->
+                                {% if proposal.photo %}
+                                    <img src="{{ proposal.photo.url }}" alt="{{ proposal.title }}" class="img-fluid proposal-image mb-2">
+                                {% elif proposal.link %}
+                                    <div class="link-preview-container">
+                                        <iframe src="{{ proposal.link }}" class="link-preview" frameborder="0"></iframe>
+                                        <a href="{{ proposal.link }}" target="_blank" class="open-gift-button btn btn-primary btn-sm">Open Gift</a>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Voting -->
+                                <p class="card-text"><small class="text-muted">Votes: {{ proposal.votes.count }}</small></p>
+                                <div>
+                                    <!-- Vote Up / Vote Down forms -->
+                                    <form method="post" action="{% url 'vote_gift_proposal' proposal.id 'up' %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success">Vote Up</button>
+                                    </form>
+                                    <form method="post" action="{% url 'vote_gift_proposal' proposal.id 'down' %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger">Vote Down</button>
+                                    </form>
+                                    <br/>
+
+                                    <!-- Show voting status of user -->
+                                    {% load vote %}
+                                    {% vote_exists proposal user "up" as user_has_upvoted %}
+                                    {% vote_exists proposal user "down" as user_has_downvoted %}
+                                    {% if user_has_upvoted %}
+                                        <small><i>You have upvoted this proposal!</i></small> 
+                                    {% elif user_has_downvoted %}
+                                        <small><i>You have downvoted this proposal!</i></small> 
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No proposals yet.</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Modal for proposing gift -->
+    <div class="modal fade" id="proposalModal" tabindex="-1" aria-labelledby="proposalModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- Header -->
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="proposalModalLabel">Propose a Gift</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <!-- Body -->
+                    <div class="modal-body">
+                        {{ form.as_p }}
+                    </div>
+                    <!-- Buttons -->
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Submit Proposal</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

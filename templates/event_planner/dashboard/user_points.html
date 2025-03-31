@@ -1,0 +1,69 @@
+<!-- templates/event_planner/dashboard/user_points.html -->
+
+
+<div class="dashboard-section user-points" id="user-points-scroll" style="overflow-y: auto;">
+    <h5 class="mb-2">Your Points: {{ current_points }}</h5>
+    
+    <!-- Card for user points-->
+    <div class="card">
+        <div class="card-body">
+            <div style="max-height: 300px; overflow-y: auto;">
+                <ul class="list-group">
+                    <!-- List user point history for all categories -->
+                    {% for entry in score_history %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">{{ entry.timestamp|date:"M d, Y H:i" }}</small><br>
+                                {% if entry.type == "role" %}
+                                    <!-- Role Score -->
+                                    Role: {{ entry.role }} in {{ entry.event_participant.event.title }}<br>
+                                    Points Awarded: {{ entry.points_awarded }}
+                                {% elif entry.type == "task" %}
+                                    <!-- Task Score -->
+                                    Task: {{ entry.task.title }} in {{ entry.task.event.title }}<br>
+                                    Points Awarded: {{ entry.points_change }}
+                                {% elif entry.type == "gift" %}
+                                    <!-- Gift Score -->
+                                    {{ entry.get_score_type_display }}: {{ entry.gift_proposal.title }} for {{ entry.gift_proposal.gift_search.title }}<br>
+                                    Points Awarded: {{ entry.points_change }}
+                                {% elif entry.type == "payment" %}
+                                    <!-- Payment Score -->
+                                    {% if entry.score_type == 'task' %}
+                                        <!-- Task (only honoree) -->
+                                        Payment: {{ entry.task.title }} in {{ entry.task.event.title }}<br>
+                                        Points Awarded: {{ entry.points_awarded }}
+                                    {% elif entry.score_type == "event" %}
+                                        <!-- Event -->
+                                        Payment: {{ entry.event.title }}<br>
+                                        Points Awarded: {{ entry.points_awarded }}
+                                    {% elif entry.score_type == "gift" %}
+                                        <!-- Gift -->
+                                        Payment: {{ entry.gift_contribution.title }}<br>
+                                        Points Awarded: {{ entry.points_awarded }}
+                                    {% endif %}
+                                {% elif entry.type == "penalty" %}
+                                    <!-- Payment Penalty Score -->
+                                    {% if entry.score_type == 'task' %}
+                                        <!-- Task (only honoree) -->
+                                        Payment Penalty: {{ entry.task.title }} {{ entry.note }}<br>
+                                        Points Deducted: {{ entry.points_awarded }}
+                                    {% elif entry.score_type == "event" %}
+                                        <!-- Event -->
+                                        PaymentPenalty: {{ entry.event.title }} {{ entry.note }}<br>
+                                        Points Deducted: {{ entry.points_awarded }}
+                                    {% elif entry.score_type == "gift" %}
+                                        <!-- Gift -->
+                                        Payment Penalty: {{ entry.gift_contribution.title }} {{ entry.note }}<br>
+                                        Points Deducted: {{ entry.points_awarded }}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">No score history available.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,21 @@
+<!-- templates/event_planner/delete_event_confirm.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+
+{% block title %}Confirm Deletion{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Confirm Deletion of "{{ event.title }}"</h2>
+        <p>Please type <strong>DEL</strong> in the box below to confirm you want to delete this event.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-danger">Delete Event</button>
+            <a href="{% url 'event_planned' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+{% endblock %}

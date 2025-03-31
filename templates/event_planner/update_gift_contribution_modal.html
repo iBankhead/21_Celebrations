@@ -1,0 +1,46 @@
+<!-- templates/event_planner/update_gift_contribution_modal.html -->
+
+{% extends "master/modal.html" %}
+{% load static %}
+
+
+{% block title %}Update Gift Contribution{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2>Update Gift Contribution</h2>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <!-- Hidden field for gift ID -->
+            <input type="hidden" name="gift_contribution_id" value="{{ gift.id }}">
+
+            <!-- Deadline -->
+            <div class="mb-3">
+                <label for="deadline" class="form-label">New Deadline</label>
+                <input type="date" name="deadline" id="deadline" class="form-control" value="{{ gift.deadline }}" style="width: 130px;">
+            </div>
+
+            <!-- Status options -->
+            <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select name="status" id="status" class="form-select" style="width: 150px;">
+                    <option value="open" {% if gift.status == 'open' %}selected{% endif %}>Open</option>
+                    <option value="closed" {% if gift.status == 'closed' %}selected{% endif %}>Closed</option>
+                    <option value="canceled" {% if gift.status == 'canceled' %}selected{% endif %}>Canceled</option>
+                </select>
+            </div>
+
+            <!-- Gift search deadline -->
+            {% if gift.gift_search %}
+                <div class="mb-3">
+                    <label for="gift_search_deadline" class="form-label">Gift Search Deadline</label>
+                    <input type="date" name="gift_search_deadline" id="gift_search_deadline" class="form-control" value="{{ gift.gift_search.deadline }}" style="width: 130px;">
+                </div>
+            {% endif %}
+
+            <!-- Buttons -->
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+{% endblock %}

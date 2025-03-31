@@ -1,0 +1,185 @@
+<!-- templates/event_planner/dashboard/open_tasks.html -->
+ 
+
+<div class="dashboard-section open-tasks" id="open-tasks"  style="min-height: 250px;">
+    <h5 class="mb-2">Open Tasks</h5>
+
+    <div class="card">
+        <div class="card-body">
+            {% if open_tasks %}
+                <ul class="list-group">
+                    {% for task in open_tasks %}
+                        <!-- List open tasks -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">
+                                    <!-- Open modal on click -->
+                                    <a href="#" class="task-title-link"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#taskDetailModal"
+                                    data-task-id="{{ task.id }}"
+                                    data-assigned-users="{% for user in task.assigned_to.all %}{{ user.user.username }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+                                    data-description="{{ task.description|escapejs }}"
+                                    data-notes="{{ task.notes|escapejs }}"
+                                    data-is-cost-related="{{ task.is_cost_related }}"
+                                    data-budget="{{ task.budget }}"
+                                    data-actual-expenses="{{ task.actual_expenses }}"
+                                    data-attachment-url="{% if task.attachment %}{{ task.attachment.url }}{% endif %}">
+                                    {{ task.title }}
+                                    </a>
+                                </h5>
+                                
+                                <!-- Task Details -->
+                                <p class="mb-1 text-muted">
+                                    Due: {{ task.due_date|date:"M d, Y H:i" }}
+                                </p>
+                                <p class="mb-1">
+                                    Status:
+                                    {% if task.status == 'completed' %}
+                                        <i class="bi bi-trophy-fill text-success"></i> Completed
+                                    {% elif task.status == 'pending' %}
+                                        <i class="bi bi-hourglass-split text-warning"></i> Pending
+                                    {% elif task.status == 'in_progress' %}
+                                        <i class="bi bi-repeat text-primary"></i> In Progress
+                                    {% elif task.status == 'overdue' %}
+                                        <i class="bi bi-exclamation-triangle-fill text-danger"></i> Overdue
+                                    {% elif task.status == 'reminder' %}
+                                        <i class="bi bi-envelope-check-fill text-danger-emphasis"></i> Reminder
+                                    {% else %}
+                                        <i class="bi bi-info-circle-fill text-info"></i> Unknown
+                                    {% endif %}
+                                </p>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div>
+                                <form method="post" action="{% url 'update_task_status' task.id %}">
+                                    {% csrf_token %}
+                                    <div class="btn-group" role="group" aria-label="Update Task Status">
+                                        {% if task.status != 'in_progress' %}
+                                            <button type="submit" name="status" value="in_progress" class="btn btn-sm btn-secondary">In Progress</button>
+                                        {% endif %}
+                                        {% if task.status != 'completed' %}
+                                            <button type="submit" name="status" value="completed" class="btn btn-sm btn-success">Completed</button>
+                                        {% endif %}
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No open tasks.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal for showing task details -->
+    <div class="modal fade" id="taskDetailModal" tabindex="-1" aria-labelledby="taskDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="taskDetailForm" method="post" action="{% url 'update_task_detail' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Header -->
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="taskDetailModalLabel">Task Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="modal-body">
+                        <!-- Hidden field to hold task id -->
+                        <input type="hidden" name="task_id" id="modal-task-id">
+                        <p>
+                            <strong>Assigned Users:</strong>
+                            <span id="modal-assigned-users"></span>
+                        </p>
+                        <p>
+                            <strong>Description:</strong>
+                            <span id="modal-description"></span>
+                        </p>
+                        <p>
+                            <strong>Notes:</strong>
+                            <span id="modal-notes"></span>
+                        </p>
+                        <!-- Section for cost-related fields -->
+                        <div id="cost-related-section" style="display: none;">
+                            <p>
+                                <strong>Budget:</strong>
+                                <span id="modal-budget"></span>
+                            </p>
+                            <div class="mb-3">
+                                <label for="modal-actual-expenses" class="form-label">Actual Expenses:</label>
+                                <input type="number" step="0.01" class="form-control" name="actual_expenses" id="modal-actual-expenses">
+                            </div>
+                        </div>
+                        <!-- File upload section -->
+                        <div class="mb-3">
+                            <label for="modal-attachment" class="form-label">Upload Document:</label>
+                            <input type="file" class="form-control" name="attachment" id="modal-attachment">
+                        </div>
+                        <!-- Display current attachment if exists -->
+                        <div id="current-attachment-section" style="display: none;">
+                        <p>
+                            <strong>Uploaded Document:</strong>
+                            <a href="" target="_blank" id="modal-current-attachment">View File</a>
+                        </p>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="modal-footer">
+                        <!-- Submit to update actual expenses / attachment -->
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Script to populate the modal when a task title is clicked -->
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        var taskDetailModal = document.getElementById('taskDetailModal');
+        taskDetailModal.addEventListener('show.bs.modal', function(event){
+            var button = event.relatedTarget;
+            // Retrieve data attributes from clicked element
+            var taskId = button.getAttribute('data-task-id');
+            var assignedUsers = button.getAttribute('data-assigned-users');
+            var description = button.getAttribute('data-description');
+            var notes = button.getAttribute('data-notes');
+            var isCostRelated = button.getAttribute('data-is-cost-related');
+            var budget = button.getAttribute('data-budget');
+            var actualExpenses = button.getAttribute('data-actual-expenses');
+            var attachmentUrl = button.getAttribute('data-attachment-url');
+
+            // Populate modal fields
+            document.getElementById('modal-task-id').value = taskId;
+            document.getElementById('modal-assigned-users').textContent = assignedUsers;
+            document.getElementById('modal-description').textContent = description;
+            document.getElementById('modal-notes').textContent = notes;
+
+            // If task is cost related, show cost section and set values
+            if(isCostRelated === "True" || isCostRelated === "true" || isCostRelated === "1"){
+                document.getElementById('cost-related-section').style.display = 'block';
+                document.getElementById('modal-budget').textContent = budget;
+                document.getElementById('modal-actual-expenses').value = actualExpenses;
+            } else {
+                document.getElementById('cost-related-section').style.display = 'none';
+            }
+
+            // Show current attachment if available
+            if(attachmentUrl){
+                document.getElementById('current-attachment-section').style.display = 'block';
+                var currentAttachmentLink = document.getElementById('modal-current-attachment');
+                currentAttachmentLink.href = attachmentUrl;
+            } else {
+                document.getElementById('current-attachment-section').style.display = 'none';
+            }
+        });
+    });
+</script>
